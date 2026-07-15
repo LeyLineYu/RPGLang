@@ -9,7 +9,7 @@
 
 typedef int Error;
 
-//INFO: Use this one when you want to iterate through every single one, since it keeps the same order
+// INFO: Use this one when you want to iterate through every single one, since it keeps the same order
 #define UNITED_ERROR_LIST()  \
   GENERIC_ERROR_LIST()       \
   DYNAMIC_ARRAY_ERROR_LIST() \
@@ -87,5 +87,11 @@ Error dumpErrors(FILE* file);
   }
 
 #endif //LOG_STATUSES
+
+#define DEFER(retVal) \
+  {                   \
+  exitValue = retVal; \
+  goto exit;          \
+  }
 
 #endif //ERROR_H

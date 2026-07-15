@@ -22,6 +22,6 @@
   X(DanglingUnit,                                                             \
     LinkedListError,                                                          \
     "List has an unreachable element",                                        \
-    "List has an unreachable element, nor by used or free walk")
+    "List has an unreachable element, by used nor free walk")
 
 #endif

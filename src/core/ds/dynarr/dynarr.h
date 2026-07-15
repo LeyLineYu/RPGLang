@@ -23,7 +23,8 @@ Error dynArrAppend(DynamicArray* dynamicArray, void* elem);
 Error dynArrDestroy(DynamicArray* dynamicArray, bool isAlloced);
 Error dynArrVerify(DynamicArray* dynamicArray);
 
-#define dynArrGet(da, index) ((char*)((da)->items) + index * (da)->itemSize)
-
+inline void* dynArrGet(DynamicArray* dynamicArray, size_t index) {
+  return ((char*)((dynamicArray)->items) + index * (dynamicArray)->itemSize);
+}
 
 #endif

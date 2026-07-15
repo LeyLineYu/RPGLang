@@ -27,9 +27,9 @@ static const char* const TOKEN_TYPES[] = {
 };
 const size_t TOKEN_TYPES_SIZE = sizer(TOKEN_TYPES);
 
-Error lexerInit(Lexer* lexer, const char* filename, size_t initCap) {
-  if (!lexer    ||
-      !filename || 
+Error lexerInit(Lexer* lexer, MappedFile file, size_t initCap) {
+  if (!lexer     ||
+      !file.size || !file.data ||
       !initCap)
     return BadArgs;
 
@@ -37,11 +37,7 @@ Error lexerInit(Lexer* lexer, const char* filename, size_t initCap) {
   if ((err = dynArrInit(&lexer->tokens, initCap, sizeof(Token), NULL)))
     return err;
 
-  if ((err = mappedFileInit(&lexer->mf, filename))) {
-    dynArrDestroy(&lexer->tokens, false);
-    return err;
-  }
-
+  lexer->mf         = file;
   lexer->pos        = 0;
   lexer->lineN      = 1;
   lexer->lineStart  = lexer->mf.data + 1;
@@ -54,8 +50,8 @@ Error lexerInit(Lexer* lexer, const char* filename, size_t initCap) {
   return OK;
 }
 
-Lexer* lexerAlloc(const char* filename, size_t initCap, Error* status) {
-  if (!filename ||
+Lexer* lexerAlloc(MappedFile file, size_t initCap, Error* status) {
+  if (!file.size || !file.data ||
       !initCap)
     RETURN_WITH_STATUS(BadArgs, NULL);
 
@@ -64,7 +60,7 @@ Lexer* lexerAlloc(const char* filename, size_t initCap, Error* status) {
     RETURN_WITH_STATUS(FailMemoryAllocation, NULL);
 
   Error err = OK;
-  if ((err = lexerInit(lexer, filename, initCap))) {
+  if ((err = lexerInit(lexer, file, initCap))) {
     free(lexer);
     RETURN_WITH_STATUS(err, NULL);
   }
@@ -217,9 +213,7 @@ Error lexerDestroy(Lexer* lexer, bool isAlloced) {
     return BadArgs;
   
   dynArrDestroy(&lexer->tokens, false);
-  if (lexer->mf.data)
-    mappedFileDestroy(&lexer->mf);
-    
+  
   if (isAlloced)
     free(lexer);
 

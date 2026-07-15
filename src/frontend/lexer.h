@@ -88,8 +88,8 @@ typedef struct Lexer {
   size_t pos;
 } Lexer;
 
-Error  lexerInit(Lexer* lexer, const char* filename, size_t initCap);
-Lexer* lexerAlloc(const char* filename, size_t initCap, Error* status);
+Error  lexerInit(Lexer* lexer, MappedFile file, size_t initCap);
+Lexer* lexerAlloc(MappedFile file, size_t initCap, Error* status);
 Error  lexerAnalyze(Lexer* lexer);
 Error  lexerDestroy(Lexer* lexer, bool isAlloced);
 Error  lexerPrintTokens(FILE* sink, Lexer* lexer);

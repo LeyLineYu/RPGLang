@@ -23,7 +23,7 @@
   X(FailMemoryAllocation,                                                          \
     GenericError,                                                                  \
     "Failed memory allocation",                                                    \
-    "Failed to allocate memory (likely in m(c)alloc())")                           \
+    "Failed to allocate memory (likely in malloc() or calloc())")                  \
   X(FailMemoryReallocation,                                                        \
     GenericError,                                                                  \
     "Failed memory reallocation",                                                  \
