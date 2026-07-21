@@ -1,4 +1,3 @@
-#include "ds/dump.h"
 #include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"
@@ -9,68 +8,7 @@
 #include "frontend/symtab.h"
 #include <string.h>
 
-int main(int argc, char* argv[]) {
-  const char* inputFilename  = NULL;
-  const char* outputFilename = NULL;
-  parseArgs(&argc, &argv, &inputFilename, &outputFilename);
-
-  int  exitValue = 0;
-  bool loggerInited    = false;
-  // bool htmlLogInited   = false;
-  bool inputFileMapped = false;
-  bool trUnitInited    = false;
-  
-  loggerInit(NULL, ERROR);
-  loggerInited = true;
-
-   // FILE* graphDumpLog = openHtmlLogFile("./.log/");
-   // if (!graphDumpLog) {                          
-   //  exitValue = FailFileOpen;              
-   //  goto exit;                           
-   // }                                   
-   // htmlLogInited = true;
-
-  Error err = OK;
-  MappedFile inputFile = {};
-  if ((err = mappedFileInit(&inputFile, inputFilename))) {
-    logln(FATAL, "Mapping input file \"%s\" failed", inputFilename);
-    DEFER(err);
-  }
-  inputFileMapped = true;
-
-  TranslationUnit trUnit = {};
-  if ((err = frontend(&trUnit, inputFile, NULL/* graphDumpLog */))) {
-    logln(FATAL, "Frontend failed");
-    DEFER(err);
-  }
-  trUnitInited = true;
-
-  FILE* outFile = fopen(outputFilename, "w");
-  if (!outFile) {
-    logln(FATAL, "Failed to open \"%s\" for write", outputFilename);
-    DEFER(FailFileOpen);
-  }
-
-  translationUnitPrint(outFile, &trUnit);
-  fclose(outFile);
-
-exit:
-  if (loggerInited)
-    loggerCloseFile();
-  // if (htmlLogInited)
-  //    closeHtmlLogFile(graphDumpLog);
-  if (inputFileMapped)
-    mappedFileDestroy(&inputFile);
-  if (trUnitInited) {
-    nodeDestroy(trUnit.ast);
-    hashTableDestroy(&trUnit.symtab, false);
-  }
-  return exitValue;
-}
-
-
-Error frontend(TranslationUnit* trUnit, MappedFile inputFile, 
-               _unused FILE* graphDumpFile) {
+Error frontend(TranslationUnit* trUnit, MappedFile inputFile) {
   if (!trUnit || 
       !inputFile.size || !inputFile.data)
     return BadArgs;
@@ -117,8 +55,7 @@ Error frontend(TranslationUnit* trUnit, MappedFile inputFile,
     DEFER(Fail);
   }
   astInited = true;
-   // if (graphDumpFile)
-   //   nodeDump(graphDumpFile, trUnit->ast, "Parsed Tree");
+  // nodeDump(GRAPH_DUMP, trUnit->ast, "Parsed Tree");
 
   if ((err = symtabInit(trUnit, SYMTAB_BUCKET_SIZE, 
                         SYMTAB_LIST_CAPACITY, SYMTAB_HASH_FUNC))) {
@@ -127,10 +64,8 @@ Error frontend(TranslationUnit* trUnit, MappedFile inputFile,
   }
   symtabInited = true;
 
-   // if (graphDumpFile) {
-   //   hashTableDump(graphDumpFile, &trUnit->symtab, "MANGLING");
-   //   nodeDump(graphDumpFile, trUnit->ast, "After Symtab Init");
-   // }
+  // hashTableDump(GRAPH_DUMP, &trUnit->symtab, "MANGLING");
+  // nodeDump(GRAPH_DUMP, trUnit->ast, "After Symtab Init");
 
   if (!symtabCheckCalls(trUnit, &err)) {
     fprintf(stderr, "Invalid function call detected, no further compilation is done\n");

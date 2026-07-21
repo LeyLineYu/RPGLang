@@ -7,6 +7,8 @@
 
 static Error mergeExceptionsCallback(TreeNode* node, uint level, void* data);
 
+// TODO: factor this out alike frontend
+
 int main(int argc, char* argv[]) {
   const char* input  = NULL;
   const char* output = NULL;

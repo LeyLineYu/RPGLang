@@ -5,6 +5,8 @@
 #include "ds/tree/root.h"
 #include "ds/hashtable/hashtable.h"
 
+extern FILE* GRAPH_DUMP; 
+
 // TODO: symbol offset is dumped incorrectly
 
 /*

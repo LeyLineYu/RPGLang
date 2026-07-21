@@ -5,7 +5,6 @@
 
 static const size_t LEXER_INIT_CAP = 1 << 8;
 
-Error frontend(TranslationUnit* trUnit, MappedFile inputFile, 
-               _unused FILE* graphDumpFile);
+Error frontend(TranslationUnit* trUnit, MappedFile inputFile);
 
 #endif

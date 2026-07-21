@@ -9,6 +9,11 @@
 #include "utils/utils.h"
 #include "ds/queue/queue.h"
 
+/// Global variable for graph dumps, 
+/// so that i dont have to pass the file pointer around, 
+/// since this is a debug feature anyway
+FILE* GRAPH_DUMP = NULL;
+
 static uint CALL_COUNT = 0;
 
 //these aren't static consts but macros because of how C treats

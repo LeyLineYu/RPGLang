@@ -1,7 +1,13 @@
 COMPILER := gcc
 
-INCLUDE_FLAGS := -I src/ \
-								 -I src/core/
+SOURCE_PATH   := src
+ARTIFACT_PATH := build
+BINARY_PATH   := bin
+LOG_PATH      := .log
+TEMP_PATH     := .temp
+
+INCLUDE_FLAGS := -I $(SOURCE_PATH)/ \
+								 -I $(SOURCE_PATH)/core/
 DEFINE_FLAGS  := -D _DEBUG \
 							   -D LOG_STATUSES \
 								 -D BACKEND_DEBUG_INFO \
@@ -12,24 +18,19 @@ DEFINE_FLAGS  := -D _DEBUG \
 								# -D LOG_FORCE_TRACE
 LIBS          := -lm -lc
 
-ARTIFACT_PATH := build
-BINARY_PATH   := bin
-LOG_PATH      := .log
-TEMP_PATH     := .temp
-
 FRONTEND      := $(BINARY_PATH)/rpgc-frontend
 MIDDLEEND     := $(BINARY_PATH)/rpgc-middleend
 BACKEND       := $(BINARY_PATH)/rpgc-backend
 TODO_FILE     := TODO.txt
 
 define to_object
-	$(patsubst %.c, $(ARTIFACT_PATH)/%.o, $(notdir $(1)))
+$(patsubst $(SOURCE_PATH)/%.c, $(ARTIFACT_PATH)/%.o, $(1))
 endef
 
-SOURCES_CORE      := $(shell find src/core/ -type f -name '*.c')
-SOURCES_FRONTEND  := $(shell find src/frontend/ -type f -name '*.c' )
-SOURCES_MIDDLEEND := $(shell find src/middleend/ -type f -name '*.c')
-SOURCES_BACKEND   := $(shell find src/backend/ -type f -name '*.c')
+SOURCES_CORE      := $(shell find $(SOURCE_PATH)/core/ -type f -name '*.c')
+SOURCES_FRONTEND  := $(shell find $(SOURCE_PATH)/frontend/ -type f -name '*.c' )
+SOURCES_MIDDLEEND := $(shell find $(SOURCE_PATH)/middleend/ -type f -name '*.c')
+SOURCES_BACKEND   := $(shell find $(SOURCE_PATH)/backend/ -type f -name '*.c')
 SOURCES           := $(SOURCES_CORE) $(SOURCES_FRONTEND) $(SOURCES_MIDDLEEND) $(SOURCES_BACKEND)
 
 OBJECTS_CORE      := $(call to_object,$(SOURCES_CORE))
@@ -88,15 +89,16 @@ define declare_recipe
 $(call to_object,$(1)): $(1)
 endef
 
-$(foreach src,$(SOURCES),$(eval $(strip $(call declare_recipe,$(src)))))
+$(foreach $(SOURCE_PATH),$(SOURCES),$(eval $(strip $(call declare_recipe,$($(SOURCE_PATH))))))
 
 %.o:
 	@echo -e "•Compiling" $<
+	@mkdir -p $(@D)
 	@$(COMPILER) -c -MMD $(DEFINE_FLAGS) $(INCLUDE_FLAGS) $(LIBS) $(C_FLAGS) $< -o $@
 
 %.d:
 
-.PHONY: ensure_directories_exist clean run build clean_logs update_todo
+.PHONY: ensure_directories_exist clean build clean_logs update_todo
 
 ensure_directories_exist:
 	mkdir -p $(BINARY_PATH) $(ARTIFACT_PATH) $(LOG_PATH) $(TEMP_PATH)
