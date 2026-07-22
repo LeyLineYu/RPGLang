@@ -1,13 +1,18 @@
 COMPILER := gcc
 
-SOURCE_PATH   := src
 ARTIFACT_PATH := build
 BINARY_PATH   := bin
 LOG_PATH      := .log
 TEMP_PATH     := .temp
 
+SOURCE_PATH    := src
+CORE_PATH      := $(SOURCE_PATH)/core
+FRONTEND_PATH  := $(SOURCE_PATH)/frontend
+MIDDLEEND_PATH := $(SOURCE_PATH)/middleend
+BACKEND_PATH   := $(SOURCE_PATH)/backend
+
 INCLUDE_FLAGS := -I $(SOURCE_PATH)/ \
-								 -I $(SOURCE_PATH)/core/
+								 -I $(CORE_PATH)/
 DEFINE_FLAGS  := -D _DEBUG \
 							   -D LOG_STATUSES \
 								 -D BACKEND_DEBUG_INFO \
@@ -18,6 +23,7 @@ DEFINE_FLAGS  := -D _DEBUG \
 								# -D LOG_FORCE_TRACE
 LIBS          := -lm -lc
 
+MAIN_TARGET   := $(BINARY_PATH)/rpgc
 FRONTEND      := $(BINARY_PATH)/rpgc-frontend
 MIDDLEEND     := $(BINARY_PATH)/rpgc-middleend
 BACKEND       := $(BINARY_PATH)/rpgc-backend
@@ -27,19 +33,34 @@ define to_object
 $(patsubst $(SOURCE_PATH)/%.c, $(ARTIFACT_PATH)/%.o, $(1))
 endef
 
-SOURCES_CORE      := $(shell find $(SOURCE_PATH)/core/ -type f -name '*.c')
-SOURCES_FRONTEND  := $(shell find $(SOURCE_PATH)/frontend/ -type f -name '*.c' )
-SOURCES_MIDDLEEND := $(shell find $(SOURCE_PATH)/middleend/ -type f -name '*.c')
-SOURCES_BACKEND   := $(shell find $(SOURCE_PATH)/backend/ -type f -name '*.c')
-SOURCES           := $(SOURCES_CORE) $(SOURCES_FRONTEND) $(SOURCES_MIDDLEEND) $(SOURCES_BACKEND)
+COMPILER_MAIN_FILE := $(SOURCE_PATH)/main.c
+MODULAR_MAIN_FILES := $(FRONTEND_PATH)/main.c  \
+                      $(MIDDLEEND_PATH)/main.c \
+                      $(BACKEND_PATH)/main.c
 
-OBJECTS_CORE      := $(call to_object,$(SOURCES_CORE))
-OBJECTS_FRONTEND  := $(call to_object,$(SOURCES_FRONTEND))
-OBJECTS_MIDDLEEND := $(call to_object,$(SOURCES_MIDDLEEND))
-OBJECTS_BACKEND   := $(call to_object,$(SOURCES_BACKEND))
-OBJECTS           := $(OBJECTS_CORE) $(OBJECTS_FRONTEND) $(OBJECTS_MIDDLEEND) $(OBJECTS_BACKEND)
+SOURCES_CORE       := $(shell find $(CORE_PATH)/      -type f -name '*.c')
+SOURCES_FRONTEND   := $(shell find $(FRONTEND_PATH)/  -type f -name '*.c')
+SOURCES_MIDDLEEND  := $(shell find $(MIDDLEEND_PATH)/ -type f -name '*.c')
+SOURCES_BACKEND    := $(shell find $(BACKEND_PATH)/   -type f -name '*.c')
+SOURCES            := $(SOURCES_CORE) $(SOURCES_FRONTEND) \
+											$(SOURCES_MIDDLEEND) $(SOURCES_BACKEND) $(COMPILER_MAIN_FILE)
+
+OBJECTS_CORE          := $(call to_object,$(SOURCES_CORE))
+OBJECTS_FRONTEND      := $(call to_object,$(SOURCES_FRONTEND))
+OBJECTS_MIDDLEEND     := $(call to_object,$(SOURCES_MIDDLEEND))
+OBJECTS_BACKEND       := $(call to_object,$(SOURCES_BACKEND))
+OBJECTS_MODULAR_MAINS := $(call to_object,$(MODULAR_MAIN_FILES))
+OBJECTS               := $(OBJECTS_CORE) $(OBJECTS_FRONTEND) \
+										     $(OBJECTS_MIDDLEEND) $(OBJECTS_BACKEND) $(call to_object,$(COMPILER_MAIN_FILE))
 
 DEPENDENCIES := $(OBJECTS:.o=.d)
+
+SANITIZER_FLAGS := -fsanitize=address,alignment,bool,bounds,enum,$\
+		 		           float-cast-overflow,float-divide-by-zero,$\
+				           integer-divide-by-zero,leak,nonnull-attribute,$\
+				           null,object-size,return,returns-nonnull-attribute,$\
+				           shift,signed-integer-overflow,undefined,$\
+				           unreachable,vla-bound,vptr
 
 C_FLAGS := -ggdb3 -O1 -Wall -Wextra                                       \
 				   -Waggressive-loop-optimizations                                \
@@ -62,26 +83,25 @@ C_FLAGS := -ggdb3 -O1 -Wall -Wextra                                       \
 				   -fstrict-overflow                                              \
 				   -fno-omit-frame-pointer -Wlarger-than=64000                    \
 				   -Wstack-usage=8192 -pie -fPIE -Werror=vla                      \
-				   -fsanitize=address,alignment,bool,bounds,enum,$\
-				   float-cast-overflow,float-divide-by-zero,$\
-				   integer-divide-by-zero,leak,nonnull-attribute,$\
-				   null,object-size,return,returns-nonnull-attribute,$\
-				   shift,signed-integer-overflow,undefined,$\
-				   unreachable,vla-bound,vptr
+					 $(SANITIZER_FLAGS)
 
-build: ensure_directories_exist $(FRONTEND) $(MIDDLEEND) $(BACKEND) update_todo
+build: ensure_directories_exist $(FRONTEND) $(MIDDLEEND) $(BACKEND) $(MAIN_TARGET) update_todo
 
 $(FRONTEND): $(OBJECTS_CORE) $(OBJECTS_FRONTEND)
 	@echo -e "•Linking Frontend together"
-	@$(COMPILER) $(INCLUDE_FLAGS) $(C_FLAGS) $^ -o $@ $(LIBS)
+	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 $(MIDDLEEND): $(OBJECTS_CORE) $(OBJECTS_MIDDLEEND)
 	@echo -e "•Linking Middleend together"
-	@$(COMPILER) $(INCLUDE_FLAGS) $(C_FLAGS) $^ -o $@ $(LIBS)
+	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 $(BACKEND): $(OBJECTS_CORE) $(OBJECTS_BACKEND)
 	@echo -e "•Linking Backend together"
-	@$(COMPILER) $(INCLUDE_FLAGS) $(C_FLAGS) $^ -o $@ $(LIBS)
+	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
+
+$(MAIN_TARGET): $(filter-out $(OBJECTS_MODULAR_MAINS),$(OBJECTS))
+	@echo -e "•Linking RPGCompiler together"
+	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 -include $(DEPENDENCIES)
 
@@ -104,7 +124,7 @@ ensure_directories_exist:
 	mkdir -p $(BINARY_PATH) $(ARTIFACT_PATH) $(LOG_PATH) $(TEMP_PATH)
 
 clean:
-	rm -f $(PROGRAM_NAME)
+	rm -f $(MAIN_TARGET) $(FRONTEND) $(MIDDLEEND) $(BACKEND)
 	rm -f -r $(ARTIFACT_PATH)
 	mkdir -p $(ARTIFACT_PATH)
 

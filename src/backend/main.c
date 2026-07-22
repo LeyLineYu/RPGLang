@@ -1,24 +1,25 @@
+#include "ds/tree/node.h"
 #include "io/io.h"
-#include "middleend/middleend.h"
 #include "utils/utils.h"
-#include <stdio.h>
+#include "backend/backend.h"
 
 int main(int argc, char* argv[]) {
-  const char* inputFilepath  = NULL;
-  const char* outputFilepath = NULL;
-  parseArgs(&argc, &argv, &inputFilepath, &outputFilepath);
+  const char* input  = NULL;
+  const char* output = NULL;
+  parseArgs(&argc, &argv, &input, &output);
 
   int  exitValue = 0;
   bool loggerInited  = false;
   // bool htmlLogInited = false;
   bool mapFileInited = false;
   bool trUnitInited  = false;
+  bool outFileInited = false;
   loggerInit(NULL, ERROR);
   loggerInited = true;
 
   Error err = OK;
   MappedFile mf = {};
-  if ((err = mappedFileInit(&mf, inputFilepath))) {
+  if ((err = mappedFileInit(&mf, input))) {
     logln(FATAL, "mappedFileInit returned %s\n", parseError(err)->str);
     DEFER(err);
   }
@@ -32,22 +33,23 @@ int main(int argc, char* argv[]) {
   trUnitInited = true;
 
   // GRAPH_DUMP = openHtmlLogFile("./.log/");
-  // if (!GRAPH_DUMP)
-  //   DEFER(FailFileOpen);
+  // if (!GRAPH_DUMP) {
+  //  exitValue = FailFileOpen; 
+  //  goto exit;
+  // }
   // htmlLogInited = true;
 
-  if ((err = middleend(&trUnit))) {
-    logln(FATAL, "Middleend failed");
-    DEFER(err);
-  }
-
-  FILE* outFile = fopen(outputFilepath, "w");
+  FILE* outFile = fopen(output, "w");
   if (!outFile) {
-    logln(FATAL, "Failed to open \"%s\" for write\n", outputFilepath);
-    DEFER(FailFileOpen);
+   logln(FATAL, "Failed to open \"%s\" for write\n", output);
+   DEFER(FailFileOpen);
   }
-  translationUnitPrint(outFile, &trUnit);
-  fclose(outFile);
+  outFileInited = true;
+
+  if ((err = backend(outFile, &trUnit))) {
+    logln(FATAL, "Backend failed");
+    DEFER(err);
+  } 
 
 exit:
   if (loggerInited)
@@ -60,5 +62,7 @@ exit:
   }
   if (mapFileInited)
     mappedFileDestroy(&mf);
+  if (outFileInited)
+    fclose(outFile);
   return exitValue;
 }

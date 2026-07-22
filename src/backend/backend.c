@@ -1,77 +1,30 @@
+#include "backend/backend.h"
 #include "backend/codegen.h"
-#include "ds/dump.h"
 #include "ds/tree/node.h"
 #include "ds/tree/type.h"
-#include "io/io.h"
 #include "utils/utils.h"
+
+// TODO: rename "exceptions" into "saving throws" or smth like that
 
 static Error mergeExceptionsCallback(TreeNode* node, uint level, void* data);
 
-// TODO: factor this out alike frontend
-
-int main(int argc, char* argv[]) {
-  const char* input  = NULL;
-  const char* output = NULL;
-  parseArgs(&argc, &argv, &input, &output);
-
-  int  exitValue = 0;
-  bool loggerInited  = false;
-  bool htmlLogInited = false;
-  bool mapFileInited = false;
-  bool trUnitInited  = false;
-  loggerInit(NULL, ERROR);
-  loggerInited = true;
-
-  MappedFile mf = {};
-  if ((exitValue = mappedFileInit(&mf, input))) {
-    fprintf(stderr, "mappedFileInit returned %s\n", parseError(exitValue)->str);
-    goto exit;
-  }
-  mapFileInited = true;
-
-  TranslationUnit trUnit = (TranslationUnit){};
-  if ((exitValue = translationUnitRead(&mf, &trUnit))) {
-    fprintf(stderr, "translationUnitRead returned %s\n", parseError(exitValue)->str);
-    goto exit;
-  }
-  trUnitInited = true;
-
-  FILE* logFile = openHtmlLogFile("./.log/");
-  if (!logFile) {
-   exitValue = FailFileOpen; 
-   goto exit;
-  }
-  htmlLogInited = true;
-
-  nodeDump(logFile, trUnit.ast, "<b2>hello</b2>");
-  // TODO: factor this out
+Error backend(FILE* outputFile, TranslationUnit* trUnit) {
+  if (!trUnit || !trUnit->ast ||
+      !outputFile)
+    return BadArgs;
+  Error err = OK;
+  if ((err = hashTableVerify(&trUnit->symtab)))
+    return err;
+  
+  // nodeDump(GRAPH_DUMP, trUnit.ast, "<b2>AST</b2>");
   uint64_t* excPtr = NULL;
-  nodeTraverse(trUnit.ast, 
+  nodeTraverse(trUnit->ast, 
                .prefix = mergeExceptionsCallback, 
                .prefixData = &excPtr);
 
-  FILE* outFile = fopen(output, "w");
-  if (!outFile) {
-   fprintf(stderr, "Failed to open \"%s\" for write\n", output);
-   exitValue = FailFileOpen;
-   goto exit;
-  }
-  codegen(outFile, &trUnit);
-  
-  fclose(outFile);
+  codegen(outputFile, trUnit);
 
-exit:
-  if (loggerInited)
-    loggerCloseFile();
-  if (htmlLogInited)
-    closeHtmlLogFile(logFile);
-  if (trUnitInited) {
-    hashTableDestroy(&trUnit.symtab, false);
-    nodeDestroy(trUnit.ast);
-  }
-  if (mapFileInited)
-    mappedFileDestroy(&mf);
-  return exitValue;
+  return OK;
 }
 
 static Error mergeExceptionsCallback(TreeNode* node, 

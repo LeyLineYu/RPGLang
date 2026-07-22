@@ -1,7 +1,9 @@
+#include "backend/backend.h"
 #include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"
 #include "frontend/frontend.h"
+#include "middleend/middleend.h"
 #include <string.h>
 
 int main(int argc, char* argv[]) {
@@ -14,6 +16,7 @@ int main(int argc, char* argv[]) {
   // bool htmlLogInited   = false;
   bool inputFileMapped = false;
   bool trUnitInited    = false;
+  bool outFileInited   = false;
   
   loggerInit(NULL, ERROR);
   loggerInited = true;
@@ -38,14 +41,22 @@ int main(int argc, char* argv[]) {
   }
   trUnitInited = true;
 
-  FILE* outFile = fopen(outputFilepath, "w");
-  if (!outFile) {
-    logln(FATAL, "Failed to open \"%s\" for write", outputFilepath);
-    DEFER(FailFileOpen);
+  if ((err = middleend(&trUnit))) {
+    logln(FATAL, "Frontend failed");
+    DEFER(err);
   }
 
-  translationUnitPrint(outFile, &trUnit);
-  fclose(outFile);
+  FILE* outFile = fopen(outputFilepath, "w");
+  if (!outFile) {
+   logln(FATAL, "Failed to open \"%s\" for write\n", outputFilepath);
+   DEFER(FailFileOpen);
+  }
+  outFileInited = true;
+
+  if ((err = backend(outFile, &trUnit))) {
+    logln(FATAL, "Backend failed");
+    DEFER(err);
+  }
 
 exit:
   if (loggerInited)
@@ -58,5 +69,7 @@ exit:
     nodeDestroy(trUnit.ast);
     hashTableDestroy(&trUnit.symtab, false);
   }
+  if (outFileInited)
+    fclose(outFile);
   return exitValue;
 }
