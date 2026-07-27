@@ -48,7 +48,7 @@ typedef struct {
   const char* longName;
   const char* defaultValue;
   const char* desc;
-  const char  shortName;
+  char  shortName;
 } FlagInfo;
 
 static const FlagInfo FLAGS[] = {
@@ -70,9 +70,12 @@ static const size_t FLAGS_SIZE = sizer(FLAGS);
 void flagContextInit(FlagContext* ctx);
 char* popArg(int* argc, char*** argv);
 char* peekArg(int* argc, char*** argv);
-void parseArgs(int* argc, char*** argv, FlagContext* ctx);
-bool parseBool(int* argc, char*** argv, FlagContext* ctx);
-const char* getFlagArgsStr(const FlagInfo* i);
+void  parseArgs(int* argc, char*** argv, FlagContext* ctx);
+bool  parseBool(int* argc, char*** argv, 
+                FlagContext* ctx, bool* failed);
+char* parseString(int* argc, char*** argv, 
+                  FlagContext* ctx, bool* failed);
+const char* getFlagArgsStr(const char* type);
 
 void flagContextInit(FlagContext* ctx) {
   if (!ctx)
@@ -115,9 +118,13 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
 
         for (; *arg; arg++) {
           switch (*arg) {
-            #define X(type, longName, shortName, defaultValue, desc, parser) \
-              case shortName: \
-                ctx->longName = parser(argc, argv, ctx); \
+            #define X(type, longName, shortName, defaultValue, desc, parser)        \
+              case shortName:                                                       \
+                ctx->longName = parser(argc, argv, ctx, &failed);                   \
+                if (failed)                                                         \
+                  fprintf(stderr,                                                   \
+                          "ERROR: flag '-%c' is missing a required argument: %s\n", \
+                          shortName, getFlagArgsStr(#type));                        \
                 break;
 
             LONG_FLAG_LIST()
@@ -140,9 +147,9 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
           continue;
 
         #define X(type, longName, shortName, defaultValue, desc, parser)            \
-          if (strcmp(arg, #longName) == 0) {         \
-            ctx->longName = parser(argc, argv, ctx);                  \
-            continue;                           \
+          if (strcmp(arg, #longName) == 0) {                                        \
+            ctx->longName = parser(argc, argv, ctx, &failed);                       \
+            continue;                                                               \
           }
 
         LONG_FLAG_LIST()
@@ -167,7 +174,7 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
     for (const FlagInfo* i = FLAGS; i < FLAGS + FLAGS_SIZE; i++) {
       printf("\t-%c, --%s %s\t\t\t%s (default: %s)\n",
              i->shortName, i->longName,
-             getFlagArgsStr(i),
+             getFlagArgsStr(i->type),
              i->desc, i->defaultValue);
     }
     exit(OK);
@@ -181,8 +188,10 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
 
 /// parses optional true/false/1/0 arg after a bool flag
 /// by default returns true
-bool parseBool(int* argc, char*** argv, FlagContext* ctx) {
+bool parseBool(int* argc, char*** argv, 
+               FlagContext* ctx, bool* failed) {
   PRELUDE();
+  assert(failed);
 
   char* peek = peekArg(argc, argv);
   if (!peek)
@@ -200,6 +209,18 @@ bool parseBool(int* argc, char*** argv, FlagContext* ctx) {
   }
 
   return true;
+}
+
+/// parses required string
+char* parseString(int* argc, char*** argv, 
+                  FlagContext* ctx, bool* failed) {
+  PRELUDE();
+  assert(failed);
+
+  char* arg = popArg(argc, argv); 
+  if (!arg)
+    *failed = true;
+  return arg;
 }
 
 #undef PRELUDE
@@ -221,13 +242,16 @@ char* peekArg(int* argc, char*** argv) {
   return (*argv)[0];
 }
 
-const char* getFlagArgsStr(const FlagInfo* i) {
-  if (!i || !i->type)
+const char* getFlagArgsStr(const char* type) {
+  if (!type)
     return NULL;
 
-  if (strcmp(i->type, "bool")  == 0 ||
-      strcmp(i->type, "_Bool") == 0)
+  if (strcmp(type, "bool")  == 0 ||
+      strcmp(type, "_Bool") == 0)
     return "[true|false|1|0]";
+  if (strcmp(type, "char*")  == 0 ||
+      strcmp(type, "char *") == 0)
+    return "<string>";
 
   return "";
 }

@@ -11,6 +11,7 @@
 #define LONG_FLAG_LIST() \
   X(bool, run, 'r', false, "Run the program", parseBool) \
   X(bool, help, 'h', false, "Display this message", parseBool) \
+  X(char*, output, 'o', "blabaweif", "A very important string", parseString) \
   X(bool, verbose, 'v', false, "Yap", parseBool)
 
 #define REQUIRED_ARG_COUNT 1
@@ -50,14 +51,16 @@ int main(int argc, char* argv[]) {
   FlagContext flagCtx = {0};
   flagContextInit(&flagCtx);
   parseArgs(&argc, &argv, &flagCtx);
-  // printf(".input = %s\n"
-  //        ".verbose = %d\n"
-  //        ".help = %d\n"
-  //        ".run = %d\n",
-  //        flagCtx.input,
-  //        flagCtx.verbose,
-  //        flagCtx.help,
-  //        flagCtx.run);
+  printf(".input = %s\n"
+         ".verbose = %d\n"
+         ".help = %d\n"
+         ".run = %d\n"
+         ".output = %s\n",
+         flagCtx.input,
+         flagCtx.verbose,
+         flagCtx.help,
+         flagCtx.run,
+         flagCtx.output);
 
   return 0;
 
