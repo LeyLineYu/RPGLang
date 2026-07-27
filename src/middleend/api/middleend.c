@@ -1,5 +1,5 @@
-#include "middleend/middleend.h"
-#include "middleend/optimization.h"
+#include "middleend/api/middleend.h"
+#include "middleend/api/optimization.h"
 
 Error middleend(TranslationUnit* trUnit) {
   if (!trUnit || !trUnit->ast)

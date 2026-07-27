@@ -2,7 +2,7 @@
 #define PARSER_H
 
 #include "ds/tree/node.h"
-#include "frontend/lexer.h"
+#include "frontend/api/lexer.h"
 
 TreeNode* parse(Tokens* tokens); 
 

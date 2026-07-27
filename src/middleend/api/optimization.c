@@ -1,4 +1,4 @@
-#include "middleend/optimization.h"
+#include "middleend/api/optimization.h"
 #include "ds/tree/root.h"
 #include <assert.h>
 

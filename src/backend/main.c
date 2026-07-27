@@ -1,13 +1,13 @@
 #include "ds/tree/node.h"
-#include "flag/flag.h"
+#include "backend/flag.h"
 #include "io/io.h"
 #include "utils/utils.h"
-#include "backend/backend.h"
+#include "backend/api/backend.h"
 
 int main(int argc, char* argv[]) {
-  const char* input  = NULL;
-  const char* output = NULL;
-  parseArgs(&argc, &argv, &input, &output);
+  FlagContext flagCtx = {0};
+  flagContextInit(&flagCtx);
+  parseArgs(&argc, &argv, &flagCtx);
 
   int  exitValue = 0;
   bool loggerInited  = false;
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
   Error err = OK;
   MappedFile mf = {};
-  if ((err = mappedFileInit(&mf, input))) {
+  if ((err = mappedFileInit(&mf, flagCtx.input))) {
     logln(FATAL, "mappedFileInit returned %s\n", parseError(err)->str);
     DEFER(err);
   }
@@ -41,9 +41,9 @@ int main(int argc, char* argv[]) {
   // }
   // htmlLogInited = true;
 
-  FILE* outFile = fopen(output, "w");
+  FILE* outFile = fopen(flagCtx.output, "w");
   if (!outFile) {
-   logln(FATAL, "Failed to open \"%s\" for write\n", output);
+   logln(FATAL, "Failed to open \"%s\" for write\n", flagCtx.output);
    DEFER(FailFileOpen);
   }
   outFileInited = true;

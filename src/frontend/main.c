@@ -1,14 +1,14 @@
-#include "flag/flag.h"
+#include "frontend/flag.h"
 #include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"
-#include "frontend/frontend.h"
+#include "frontend/api/frontend.h"
 #include <string.h>
 
 int main(int argc, char* argv[]) {
-  const char* inputFilepath  = NULL;
-  const char* outputFilepath = NULL;
-  parseArgs(&argc, &argv, &inputFilepath, &outputFilepath);
+  FlagContext flagCtx = {0};
+  flagContextInit(&flagCtx);
+  parseArgs(&argc, &argv, &flagCtx);
 
   int  exitValue = 0;
   bool loggerInited    = false;
@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
 
   Error err = OK;
   MappedFile inputFile = {};
-  if ((err = mappedFileInit(&inputFile, inputFilepath))) {
-    logln(FATAL, "Mapping input file \"%s\" failed", inputFilepath);
+  if ((err = mappedFileInit(&inputFile, flagCtx.input))) {
+    logln(FATAL, "Mapping input file \"%s\" failed", flagCtx.input);
     DEFER(err);
   }
   inputFileMapped = true;
@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
   }
   trUnitInited = true;
 
-  FILE* outFile = fopen(outputFilepath, "w");
+  FILE* outFile = fopen(flagCtx.output, "w");
   if (!outFile) {
-    logln(FATAL, "Failed to open \"%s\" for write", outputFilepath);
+    logln(FATAL, "Failed to open \"%s\" for write", flagCtx.output);
     DEFER(FailFileOpen);
   }
 

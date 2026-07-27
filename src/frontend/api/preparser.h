@@ -2,7 +2,7 @@
 #define PREPARSER_H
 
 #include "error/error.h"
-#include "frontend/lexer.h"
+#include "frontend/api/lexer.h"
 
 bool preparse(Tokens* ts, Error* status);
 

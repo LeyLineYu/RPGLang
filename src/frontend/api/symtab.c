@@ -1,4 +1,4 @@
-#include "frontend/symtab.h"
+#include "frontend/api/symtab.h"
 #include "ds/hashtable/entry.h"
 #include "ds/tree/type.h"
 #include <assert.h>

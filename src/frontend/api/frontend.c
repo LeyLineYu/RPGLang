@@ -1,11 +1,11 @@
 #include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"
-#include "frontend/frontend.h"
-#include "frontend/lexer.h"
-#include "frontend/preparser.h"
-#include "frontend/parser.h"
-#include "frontend/symtab.h"
+#include "frontend/api/frontend.h"
+#include "frontend/api/lexer.h"
+#include "frontend/api/preparser.h"
+#include "frontend/api/parser.h"
+#include "frontend/api/symtab.h"
 #include <string.h>
 
 Error frontend(TranslationUnit* trUnit, MappedFile inputFile) {

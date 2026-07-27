@@ -1,3 +1,4 @@
+/// Uses macro substitution to autogen C code that parses the command-line arguments
 #ifndef FLAG_H
 #define FLAG_H
 
@@ -7,31 +8,43 @@
 #include <stdlib.h>
 #include <string.h>
 
+/// Signifies what field inside of the FlagContext struct is responsible for help printing
+/// Also signifies what flag is used for help (e.g. --help in this case)
 #ifndef HELP_FIELD
   #define HELP_FIELD help
 #endif
+/// List of flags that both have a long variant and a short variant
+/// X(type, longName(also doubles as field name), shortName, defaultValue, description, functionToUseForParsing)
 #ifndef LONG_FLAG_LIST
   #define LONG_FLAG_LIST() \
     X(bool, help, 'h', false, "Display this message", parseBool)
 #endif
+/// Any fields you might want to include in FlagContext struct go here (e.g. char*[] inputFiles; int amount)
 #ifndef FLAG_CONTEXT_ADDITIONAL_FIELDS
   #define FLAG_CONTEXT_ADDITIONAL_FIELDS()
 #endif
+/// Any code you want to run before all the default flag values are assigned in flagContextInit function
+/// Useful to initialize your additional fields
 #ifndef FLAG_CONTEXT_PREINIT_HOOK
   #define FLAG_CONTEXT_PREINIT_HOOK()
 #endif
+/// How many arguments does the program need (not counting the program name)
 #ifndef REQUIRED_ARG_COUNT 
   #define REQUIRED_ARG_COUNT 0
 #endif
+/// Code to print the consise usage
 #ifndef USAGE
   #define USAGE(file)
 #endif
+/// Code to print verbose usage, like when running --help
 #ifndef USAGE_VERBOSE
   #define USAGE_VERBOSE(file)
 #endif
+/// Code to run when the argument isn't a flag and not a flag's arg
 #ifndef DEFAULT_ARG_HANDLER
   #define DEFAULT_ARG_HANDLER()
 #endif
+/// Code to run after every argument has been parsed (useful to check if the necessary fields were assigned)
 #ifndef POST_PARSING_HOOK
   #define POST_PARSING_HOOK()
 #endif
@@ -97,6 +110,8 @@ void flagContextInit(FlagContext* ctx) {
          ctx);            \
   }
 
+
+/// Use this to signify that the parsing was not successful
 #define FAILED() failed = true;
 
 void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
@@ -149,6 +164,10 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
         #define X(type, longName, shortName, defaultValue, desc, parser)            \
           if (strcmp(arg, #longName) == 0) {                                        \
             ctx->longName = parser(argc, argv, ctx, &failed);                       \
+            if (failed)                                                             \
+              fprintf(stderr,                                                       \
+                      "ERROR: flag \"--%s\" is missing a required argument: %s\n",  \
+                      #longName, getFlagArgsStr(#type));                            \
             continue;                                                               \
           }
 

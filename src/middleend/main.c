@@ -1,13 +1,13 @@
-#include "flag/flag.h"
+#include "middleend/flag.h"
 #include "io/io.h"
-#include "middleend/middleend.h"
+#include "middleend/api/middleend.h"
 #include "utils/utils.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[]) {
-  const char* inputFilepath  = NULL;
-  const char* outputFilepath = NULL;
-  parseArgs(&argc, &argv, &inputFilepath, &outputFilepath);
+  FlagContext flagCtx = {0};
+  flagContextInit(&flagCtx);
+  parseArgs(&argc, &argv, &flagCtx);
 
   int  exitValue = 0;
   bool loggerInited  = false;
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 
   Error err = OK;
   MappedFile mf = {};
-  if ((err = mappedFileInit(&mf, inputFilepath))) {
+  if ((err = mappedFileInit(&mf, flagCtx.input))) {
     logln(FATAL, "mappedFileInit returned %s\n", parseError(err)->str);
     DEFER(err);
   }
@@ -43,9 +43,9 @@ int main(int argc, char* argv[]) {
     DEFER(err);
   }
 
-  FILE* outFile = fopen(outputFilepath, "w");
+  FILE* outFile = fopen(flagCtx.output, "w");
   if (!outFile) {
-    logln(FATAL, "Failed to open \"%s\" for write\n", outputFilepath);
+    logln(FATAL, "Failed to open \"%s\" for write\n", flagCtx.output);
     DEFER(FailFileOpen);
   }
   translationUnitPrint(outFile, &trUnit);
