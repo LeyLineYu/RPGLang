@@ -20,7 +20,7 @@ typedef enum {
 
 extern const size_t LOG_LEVELS_SIZE; 
 
-typedef struct Logger {
+typedef struct {
   FILE* sink;
   LogLevel level;
 } Logger;

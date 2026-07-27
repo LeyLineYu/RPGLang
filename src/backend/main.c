@@ -1,4 +1,5 @@
 #include "ds/tree/node.h"
+#include "flag/flag.h"
 #include "io/io.h"
 #include "utils/utils.h"
 #include "backend/backend.h"
@@ -14,6 +15,7 @@ int main(int argc, char* argv[]) {
   bool mapFileInited = false;
   bool trUnitInited  = false;
   bool outFileInited = false;
+
   loggerInit(NULL, ERROR);
   loggerInited = true;
 

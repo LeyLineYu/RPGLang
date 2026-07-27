@@ -20,7 +20,7 @@ typedef int Error;
   DYNAMIC_ARRAY_ERROR_MODULE() \
   LINKED_LIST_ERROR_MODULE()
 
-typedef enum ErrorModule {
+typedef enum {
   #define X(enm, ...) enm,
   ERROR_MODULE_LIST()
   #undef X
@@ -29,7 +29,7 @@ typedef enum ErrorModule {
 _Static_assert(GenericError == 0, 
                "GenericError must be 0 to be OK's and Fail's module");
 
-typedef enum ErrorEnum {
+typedef enum {
   #define X(enm, ...) enm,
   UNITED_ERROR_LIST()
   #undef X
@@ -41,7 +41,7 @@ _Static_assert(Fail == 1, "Fail must be 1 to fail in if (cond)");
 extern const size_t ERROR_MODULES_SIZE;
 extern const size_t ERRORS_SIZE;
 
-typedef struct ErrorInfo {
+typedef struct {
   const char* str;
   const char* shortDesc;
   const char* desc;
@@ -49,7 +49,7 @@ typedef struct ErrorInfo {
   ErrorModule module;
 } ErrorInfo;
 
-typedef struct ErrorModuleInfo {
+typedef struct {
   const char* str;
   const char* shortDesc;
   const char* desc;

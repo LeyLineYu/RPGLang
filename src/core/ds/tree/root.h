@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "ds/tree/node.h"
 
-typedef struct TreeRoot {
+typedef struct {
   size_t nodeCount;
   TreeNode* rootNode;
 } TreeRoot;

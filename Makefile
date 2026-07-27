@@ -84,8 +84,8 @@ C_FLAGS := -ggdb3 -O1 -Wall -Wextra                                       \
 				   -fno-omit-frame-pointer -Wlarger-than=64000                    \
 				   -Wstack-usage=8192 -pie -fPIE -Werror=vla                      \
 					 $(SANITIZER_FLAGS)
-
-build: ensure_directories_exist $(FRONTEND) $(MIDDLEEND) $(BACKEND) $(MAIN_TARGET) update_todo
+# $(FRONTEND) $(MIDDLEEND) $(BACKEND)
+build: ensure_directories_exist $(MAIN_TARGET) update_todo
 
 $(FRONTEND): $(OBJECTS_CORE) $(OBJECTS_FRONTEND)
 	@echo -e "•Linking Frontend together"

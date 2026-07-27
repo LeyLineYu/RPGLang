@@ -6,9 +6,9 @@
 
 typedef TreeNode* QueueUnit;
 
-typedef struct Queue {
+typedef struct Queue_ {
 	QueueUnit data;
-	struct Queue* next;
+	struct Queue_* next;
 } Queue;
 
 Error enqueue(Queue** queue, QueueUnit data);

@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-typedef struct DynamicArray {
+typedef struct {
   void* items;
   size_t itemSize;
   size_t capacity;

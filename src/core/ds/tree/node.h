@@ -46,7 +46,7 @@ typedef struct TreeNode_ {
   TREE_NODE_FIELDS;
 } TreeNode;
 
-typedef struct NodeAllocOpt {
+typedef struct {
   TREE_NODE_FIELDS;
   Error* status;
 } NodeAllocOpt;
@@ -67,7 +67,7 @@ Error nodeDestroyC(TreeNode* node, size_t* nodeCount);
 
 typedef Error (*callback_f)(TreeNode* node, uint level, void* data);
 
-typedef struct NodeTraverseOpt {
+typedef struct {
   callback_f prefix;
   callback_f infix;
   callback_f postfix;

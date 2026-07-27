@@ -15,7 +15,7 @@
   X(SYMBOL_TYPE,     "SYMBOL")       \
   X(VAR_TYPE_TYPE,   "TYPE")
 
-typedef enum NodeType {
+typedef enum {
   #define X(enm, ...) enm,
   NODE_TYPE_LIST()
   #undef X
@@ -69,13 +69,13 @@ int getNodeType(const char* str, size_t n);
   X(OP_AND,  "and",    2, 5) \
   X(OP_OR,   "or",     2, 5)
 
-typedef enum OpType {
+typedef enum {
   #define X(enm, ...) enm,
   OP_TYPE_LIST()
   #undef X
 } OpType;
 
-typedef struct OpTypeInfo {
+typedef struct {
   OpType type;
   const char* str;
   uint argCount;
@@ -88,7 +88,7 @@ int getOpType(const char* str, size_t n);
 ///If the operation doesn't require a second parameter then leave b as whatever
 int64_t applyOperation(OpType type, int64_t a, int64_t b, Error* status);
 
-typedef enum CtrlType {
+typedef enum {
   #define X(enm, ...) enm,
   CTRL_TYPE_LIST()
   #undef X
@@ -97,7 +97,7 @@ typedef enum CtrlType {
 const char* getCtrlTypeStr(CtrlType type);
 int getCtrlType(const char* str, size_t n);
 
-typedef enum VarType {
+typedef enum {
   #define X(enm, ...) enm,
   VAR_TYPE_LIST()
   #undef X

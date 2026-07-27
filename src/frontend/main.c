@@ -1,3 +1,4 @@
+#include "flag/flag.h"
 #include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"

@@ -1,3 +1,4 @@
+#include "flag/flag.h"
 #include "io/io.h"
 #include "middleend/middleend.h"
 #include "utils/utils.h"
@@ -13,6 +14,7 @@ int main(int argc, char* argv[]) {
   // bool htmlLogInited = false;
   bool mapFileInited = false;
   bool trUnitInited  = false;
+
   loggerInit(NULL, ERROR);
   loggerInited = true;
 

@@ -1,15 +1,69 @@
 #include "backend/backend.h"
-#include "io/io.h"
 #include "logger/logger.h"
 #include "error/error.h"
 #include "frontend/frontend.h"
 #include "middleend/middleend.h"
-#include <string.h>
+
+#define FLAG_CONTEXT_ADDITIONAL_FIELDS() \
+  char* input;
+
+// type, longName, shortName, defValue, desc, parser
+#define LONG_FLAG_LIST() \
+  X(bool, run, 'r', false, "Run the program", parseBool) \
+  X(bool, help, 'h', false, "Display this message", parseBool) \
+  X(bool, verbose, 'v', false, "Yap", parseBool)
+
+#define REQUIRED_ARG_COUNT 1
+
+#define USAGE(file)                                 \
+  fprintf(file,                                     \
+          "Usage: %s [OPTIONS] FILE\n"              \
+          "Try '%s --help' for more information\n", \
+          PROG_NAME, PROG_NAME);
+
+#define USAGE_VERBOSE(file)                                                             \
+  fprintf(file,                                                                         \
+          "Usage: %s [OPTIONS] FILE\n"                                                  \
+          "Compile FILE into nasm (given that FILE contains a valid RPGLang program)\n" \
+          "Example: %s main.rpg -o output.asm\n",                                       \
+          PROG_NAME, PROG_NAME);
+
+#define DEFAULT_ARG_HANDLER()                                         \
+  {                                                                   \
+  if (ctx->input) {                                                   \
+    fprintf(stderr, "ERROR: More than one input file is provided\n"); \
+    FAILED();                                                         \
+  }                                                                   \
+  ctx->input = arg;                                                   \
+  }
+#define POST_PARSING_HOOK()                                \
+  {                                                        \
+  if (!ctx->input) {                                       \
+    fprintf(stderr, "ERROR: No input file is provided\n"); \
+    FAILED();                                              \
+  }                                                        \
+  }
+
+#include "templates/flag.h"
 
 int main(int argc, char* argv[]) {
+  FlagContext flagCtx = {0};
+  flagContextInit(&flagCtx);
+  parseArgs(&argc, &argv, &flagCtx);
+  // printf(".input = %s\n"
+  //        ".verbose = %d\n"
+  //        ".help = %d\n"
+  //        ".run = %d\n",
+  //        flagCtx.input,
+  //        flagCtx.verbose,
+  //        flagCtx.help,
+  //        flagCtx.run);
+
+  return 0;
+
   const char* inputFilepath  = NULL;
   const char* outputFilepath = NULL;
-  parseArgs(&argc, &argv, &inputFilepath, &outputFilepath);
+  //parseArgs(&argc, &argv, &inputFilepath, &outputFilepath);
 
   int  exitValue = 0;
   bool loggerInited    = false;

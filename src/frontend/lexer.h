@@ -57,7 +57,7 @@
   X(TOK_NUM_LIT,    "NUM_LITERAL") \
   KEYWORD_LIST()
 
-typedef enum TokenType {
+typedef enum {
   #define X(enm, ...) enm,
   TOKEN_TYPE_LIST()
   #undef X
@@ -68,7 +68,7 @@ extern const size_t TOKEN_TYPES_SIZE;
 const char* getTokenTypeStr(TokenType type);
 
 // TODO: add const qualifiers to char* here
-typedef struct Token {
+typedef struct {
   TokenType type;
   bool isInvalidClass;
   int64_t value;
@@ -80,7 +80,7 @@ typedef struct Token {
 
 typedef DynamicArray Tokens;
 
-typedef struct Lexer {
+typedef struct {
   Tokens tokens;
   MappedFile mf;
   size_t lineN;

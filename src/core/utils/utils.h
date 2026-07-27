@@ -17,6 +17,9 @@
 #define _format
 #endif
 
+#define str(a) str_(a)
+#define str_(a) #a
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define SV(str) (StringView){ .data = str, .size = sizeof(str) - 1 }
 
@@ -48,7 +51,7 @@ Error snTimestampedFilename(char* dest, size_t n,
 /// "%day-%month-%Year-%Hour:%Minute:%Second"
 Error snTimestamp(char* dest, size_t n);
 
-typedef struct MappedFile {
+typedef struct {
   char* data;
   size_t size;
 } MappedFile; 
@@ -57,8 +60,4 @@ typedef struct MappedFile {
 Error mappedFileInit(MappedFile* mappedFile, const char* filename);
 Error mappedFileDestroy(MappedFile* mappedFile); 
 
-char* popArg(int* argc, char*** argv);
-
-void parseArgs(int* argc, char*** argv, 
-               const char** input, const char** output);
 #endif
