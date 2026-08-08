@@ -14,7 +14,6 @@ int main(int argc, char* argv[]) {
   // bool htmlLogInited = false;
   bool mapFileInited = false;
   bool trUnitInited  = false;
-  bool outFileInited = false;
 
   loggerInit(NULL, ERROR);
   loggerInited = true;
@@ -41,17 +40,10 @@ int main(int argc, char* argv[]) {
   // }
   // htmlLogInited = true;
 
-  FILE* outFile = fopen(flagCtx.output, "w");
-  if (!outFile) {
-   logln(FATAL, "Failed to open \"%s\" for write\n", flagCtx.output);
-   DEFER(FailFileOpen);
-  }
-  outFileInited = true;
-
-  if ((err = backend(outFile, &trUnit))) {
+  if ((err = backend(flagCtx.output, &trUnit, flagCtx.nasm, flagCtx.temp))) {
     logln(FATAL, "Backend failed");
     DEFER(err);
-  } 
+  }
 
 exit:
   if (loggerInited)
@@ -64,7 +56,5 @@ exit:
   }
   if (mapFileInited)
     mappedFileDestroy(&mf);
-  if (outFileInited)
-    fclose(outFile);
   return exitValue;
 }

@@ -3,6 +3,7 @@
 
 #include "symbol/symbol.h"
 
-Error backend(FILE* outputFile, TranslationUnit* trUnit);
+Error backend(const char* outputFilepath, TranslationUnit* trUnit,
+              bool stopAtNasm, bool keepTempFiles);
 
 #endif

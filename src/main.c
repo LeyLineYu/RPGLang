@@ -5,6 +5,9 @@
 #include "backend/api/backend.h"
 #include "flag.h"
 
+// TODO: tell the user that nasm, ld and dot are needed (dot needed if it's a debug build)
+// Also, probably locate with "which" before trying to use these programs
+
 int main(int argc, char* argv[]) {
   FlagContext flagCtx = {0};
   flagContextInit(&flagCtx);
@@ -15,7 +18,6 @@ int main(int argc, char* argv[]) {
   // bool htmlLogInited   = false;
   bool inputFileMapped = false;
   bool trUnitInited    = false;
-  bool outFileInited   = false;
   
   loggerInit(NULL, ERROR);
   loggerInited = true;
@@ -45,14 +47,7 @@ int main(int argc, char* argv[]) {
     DEFER(err);
   }
 
-  FILE* outFile = fopen(flagCtx.output, "w");
-  if (!outFile) {
-   logln(FATAL, "Failed to open \"%s\" for write\n", flagCtx.output);
-   DEFER(FailFileOpen);
-  }
-  outFileInited = true;
-
-  if ((err = backend(outFile, &trUnit))) {
+  if ((err = backend(flagCtx.output, &trUnit, flagCtx.nasm, flagCtx.temp))) {
     logln(FATAL, "Backend failed");
     DEFER(err);
   }
@@ -68,7 +63,5 @@ exit:
     nodeDestroy(trUnit.ast);
     hashTableDestroy(&trUnit.symtab, false);
   }
-  if (outFileInited)
-    fclose(outFile);
   return exitValue;
 }

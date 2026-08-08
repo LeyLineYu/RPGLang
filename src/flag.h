@@ -5,9 +5,12 @@
   char* input;
 
 // type, longName, shortName, defValue, desc, parser
-#define LONG_FLAG_LIST()                                                                          \
-  X(bool,  help,   'h', false,   "Display this message",                             parseBool)   \
-  X(char*, output, 'o', "asm.s", "Place the output at the filepath set by <string>", parseString) \
+#define LONG_FLAG_LIST()                                                     \
+  X(bool,  help,      'h', false,   "Display this message",       parseBool) \
+  X(bool,  nasm,      's', false,   "Compile and don't assemble", parseBool) \
+  X(bool,  temp,      't', false,   "Keep temporary files",       parseBool) \
+  X(char*, output,    'o', "asm.s", "Place the output at the "               \
+                                    "filepath set by <string>", parseString)
 
 #define REQUIRED_ARG_COUNT 1
 
