@@ -14,7 +14,7 @@ CLASS_LIST()
 #undef X
 } Class;
 
-//TODO: maybe another solution that doesnt involve Y-macro
+// WARN: This list has both X and Y macros (for 1 and 2 classes respectively)
 #define CLASSIFIED_TOKENS_LIST() \
   X(TOK_EMPOWER, Mage)           \
   X(TOK_NUM_LIT, Mage)           \

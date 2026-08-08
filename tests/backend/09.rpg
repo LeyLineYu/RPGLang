@@ -1,9 +1,10 @@
 prim main() {
   evenMoreNumbers();
   out(0);
+  prim %^&* mirror someNumbers();
   someNumbers();
   someNumbers();
-  someNumbers();
+  out(%^&*);
   complete 0;
 }
 

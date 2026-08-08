@@ -56,7 +56,6 @@ typedef struct {
   size_t size;
 } MappedFile; 
 
-
 Error mappedFileInit(MappedFile* mappedFile, const char* filename);
 Error mappedFileDestroy(MappedFile* mappedFile); 
 
