@@ -8,6 +8,20 @@
 #define LONG_FLAG_LIST()                                                                          \
   X(bool,  help,   'h', false,     "Display this message",                             parseBool)   \
   X(char*, output, 'o', "ast.txt", "Place the output at the filepath set by <string>", parseString) \
+  X(Difficulty, difficulty, 'D', Normal,  "Set difficulty mode for the compiler:\n" \
+                                          "\t\t\t\teasy - Do not check for the "    \
+                                          "correctness of class usage and do "      \
+                                          "not produce saving throws "              \
+                                          "for the class misusage\n"                \
+                                          "\t\t\t\tnormal - Check for the "         \
+                                          "correctness and stop the "               \
+                                          "compilation upon found misusage\n"       \
+                                          "\t\t\t\thard - Do as in 'normal' "       \
+                                          "difficulty, but do not stop the "        \
+                                          "compilation, letting saving throws be "  \
+                                          "generated instead",        parseDifficulty)
+
+
 
 #define REQUIRED_ARG_COUNT 1
 

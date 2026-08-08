@@ -9,7 +9,7 @@
   X(bool,  help,      'h', false,   "Display this message",       parseBool) \
   X(bool,  nasm,      's', false,   "Compile and don't assemble", parseBool) \
   X(bool,  temp,      't', false,   "Keep temporary files",       parseBool) \
-  X(char*, output,    'o', "asm.s", "Place the output at the "               \
+  X(char*, output,    'o', "a.out", "Place the output at the "               \
                                     "filepath set by <string>", parseString)
 
 #define REQUIRED_ARG_COUNT 1

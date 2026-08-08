@@ -1,5 +1,5 @@
 #!/bin/bash
-# example of a script using modules of rpgc separately,
+# Example script that uses modules of rpgc separately,
 # like running each end as separate processes
 
 set -xe

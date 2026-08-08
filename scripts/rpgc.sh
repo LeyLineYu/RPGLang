@@ -1,5 +1,5 @@
 #!/bin/bash
-# example of a script that uses rpgc,
+# Example script that uses rpgc,
 # which directly transforms RPGLang into nasm files
 # (-s flag means "stop at nasm", so you can call nasm yourself after if you want)
 

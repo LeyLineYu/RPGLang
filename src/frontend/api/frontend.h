@@ -5,6 +5,7 @@
 
 static const size_t LEXER_INIT_CAP = 1 << 8;
 
-Error frontend(TranslationUnit* trUnit, MappedFile inputFile);
+Error frontend(TranslationUnit* trUnit, MappedFile inputFile,
+               Difficulty dif);
 
 #endif

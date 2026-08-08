@@ -17,6 +17,12 @@
 #define _format
 #endif
 
+typedef enum {
+  Easy,
+  Normal,
+  Hard,
+} Difficulty;
+
 #define str(a) str_(a)
 #define str_(a) #a
 

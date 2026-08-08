@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   inputFileMapped = true;
 
   TranslationUnit trUnit = {};
-  if ((err = frontend(&trUnit, inputFile))) {
+  if ((err = frontend(&trUnit, inputFile, flagCtx.difficulty))) {
     logln(FATAL, "Frontend failed");
     DEFER(err);
   }

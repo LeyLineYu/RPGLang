@@ -38,7 +38,7 @@ CLASS_LIST()
 static bool isInvalidClass(TokenType type, Class curClass);
 static const char* getClassStr(Class class);
 
-bool preparse(Tokens* ts, Error* status) {
+bool preparse(Tokens* ts, Difficulty dif, Error* status) {
   Error err = OK;
   if ((err = dynArrVerify(ts)))
     RETURN_WITH_STATUS(err, false);
@@ -57,20 +57,20 @@ bool preparse(Tokens* ts, Error* status) {
       case TOK_WARRIOR: curClass = Warrior; continue;
       case TOK_WARLOCK: curClass = Warlock; continue;
       default: {
-        #ifndef EASY_DIFFICULTY
-        bool isInv = isInvalidClass(t->type, curClass);
-        if (isInv) {
-          fprintf(stderr, 
-                  "%zu:%zu [ERROR] %s isn't able to use \"%.*s\"\n"
-                  "|\t%.*s\n",
-                  t->lineN, (size_t)(t->pos - t->lineStart),
-                  getClassStr(curClass), (int)t->len, t->pos,
-                  (int)(strchr(t->lineStart, '\n') - t->lineStart), 
-                  t->lineStart);
-          allValid = false;
+        if (dif != Easy) {
+          bool isInv = isInvalidClass(t->type, curClass);
+          if (isInv) {
+            fprintf(stderr, 
+                    "%zu:%zu [ERROR] %s isn't able to use \"%.*s\"\n"
+                    "|\t%.*s\n",
+                    t->lineN, (size_t)(t->pos - t->lineStart),
+                    getClassStr(curClass), (int)t->len, t->pos,
+                    (int)(strchr(t->lineStart, '\n') - t->lineStart), 
+                    t->lineStart);
+            allValid = false;
+          } 
+          t->isInvalidClass = isInv;
         }
-        t->isInvalidClass = isInv;
-        #endif
         dynArrAppend(&newTs, t); break;
       }
     }

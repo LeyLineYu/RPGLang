@@ -8,7 +8,7 @@
 #include "frontend/api/symtab.h"
 #include <string.h>
 
-Error frontend(TranslationUnit* trUnit, MappedFile inputFile) {
+Error frontend(TranslationUnit* trUnit, MappedFile inputFile, Difficulty dif) {
   if (!trUnit || 
       !inputFile.size || !inputFile.data)
     return BadArgs;
@@ -33,18 +33,17 @@ Error frontend(TranslationUnit* trUnit, MappedFile inputFile) {
 
   // lexerPrintTokens(stdout, &lexer);
 
-  _unused bool valid = preparse(&lexer.tokens, &err);
+  _unused bool valid = preparse(&lexer.tokens, dif, &err);
 
   if (err) {
     logln(FATAL, "Preparser Failed\n");
     DEFER(err);
   }
-#ifndef HARD_DIFFICULTY
-  if (!valid) {
+
+  if (!valid && dif != Hard) {
     logln(FATAL, "Invalid class usage detected, no further compilation is done\n");
     DEFER(Fail);
   }
-#endif
 
   // printf("After Preparsing ------------\n");
   // lexerPrintTokens(stdout, &lexer);

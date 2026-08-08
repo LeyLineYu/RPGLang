@@ -48,6 +48,10 @@
 #ifndef POST_PARSING_HOOK
   #define POST_PARSING_HOOK()
 #endif
+/// Code to run that extends getFlagArgStr()'s functionality to custom types
+#ifndef GET_FLAG_ARGS_STR_HOOK
+  #define GET_FLAG_ARGS_STR_HOOK(type)
+#endif
 
 typedef struct {
 #define X(type, longName, ...) type longName;
@@ -88,6 +92,8 @@ bool  parseBool(int* argc, char*** argv,
                 FlagContext* ctx, bool* failed);
 char* parseString(int* argc, char*** argv, 
                   FlagContext* ctx, bool* failed);
+Difficulty parseDifficulty(int* argc, char*** argv, 
+                           FlagContext* ctx, bool* failed); 
 const char* getFlagArgsStr(const char* type);
 
 void flagContextInit(FlagContext* ctx) {
@@ -128,14 +134,17 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
   while ((arg = popArg(argc, argv))) {
     if (*arg == '-') {
       arg++;
-
+      bool ignored = false;
       if (*arg != '-') {
-
+        
         for (; *arg; arg++) {
           switch (*arg) {
             #define X(type, longName, shortName, defaultValue, desc, parser)        \
               case shortName:                                                       \
-                ctx->longName = parser(argc, argv, ctx, &failed);                   \
+                if (ignored)                                                        \
+                  parser(argc, argv, ctx, &failed);                                 \
+                else                                                                \
+                  ctx->longName = parser(argc, argv, ctx, &failed);                 \
                 if (failed)                                                         \
                   fprintf(stderr,                                                   \
                           "ERROR: flag '-%c' is missing a required argument: %s\n", \
@@ -145,7 +154,8 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
             LONG_FLAG_LIST()
             #undef X
             case '/':
-              continue;
+              ignored = true;
+              break;
             default: 
               fprintf(stderr, 
                       "ERROR: Unknown flag '-%c', "
@@ -158,12 +168,17 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
 
       } else {
         arg++;
-        if (arg[1] == '/')
-          continue;
+        if (arg[0] == '/') {
+          ignored = true;
+          arg++;
+        }
 
         #define X(type, longName, shortName, defaultValue, desc, parser)            \
           if (strcmp(arg, #longName) == 0) {                                        \
-            ctx->longName = parser(argc, argv, ctx, &failed);                       \
+            if (ignored)                                                            \
+              parser(argc, argv, ctx, &failed);                                     \
+            else                                                                    \
+              ctx->longName = parser(argc, argv, ctx, &failed);                     \
             if (failed)                                                             \
               fprintf(stderr,                                                       \
                       "ERROR: flag \"--%s\" is missing a required argument: %s\n",  \
@@ -191,7 +206,7 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
     USAGE_VERBOSE(stdout);
     puts("OPTIONS:");
     for (const FlagInfo* i = FLAGS; i < FLAGS + FLAGS_SIZE; i++) {
-      printf("\t-%c, --%s %s\t\t\t%s (default: %s)\n",
+      printf("\t-%c, --%-10s %-20s\t%s (default: %s)\n",
              i->shortName, i->longName,
              getFlagArgsStr(i->type),
              i->desc, i->defaultValue);
@@ -242,6 +257,30 @@ char* parseString(int* argc, char*** argv,
   return arg;
 }
 
+Difficulty parseDifficulty(int* argc, char*** argv, 
+                           FlagContext* ctx, bool* failed) {
+  PRELUDE();
+  assert(failed);
+
+  char* arg = popArg(argc, argv); 
+  if (!arg)
+    *failed = true;
+
+  if (strcmp(arg, "easy") == 0)
+    return Easy;
+  if (strcmp(arg, "normal") == 0)
+    return Normal;
+  if (strcmp(arg, "hard") == 0)
+    return Hard;
+
+
+  fprintf(stderr, 
+          "ERROR: Invalid difficulty type \"%s\"\n", 
+          arg);
+  *failed = true;
+  return Normal;
+}
+
 #undef PRELUDE
 
 char* popArg(int* argc, char*** argv) {
@@ -271,6 +310,8 @@ const char* getFlagArgsStr(const char* type) {
   if (strcmp(type, "char*")  == 0 ||
       strcmp(type, "char *") == 0)
     return "<string>";
+  if (strcmp(type, "Difficulty") == 0)
+    return "<easy|normal|hard>";
 
   return "";
 }
