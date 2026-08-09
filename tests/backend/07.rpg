@@ -1,12 +1,18 @@
 prim main() {
-  while (0I) {
-    out(0);
-    while (0) {
-      out(0I);
+  prim :P mirror 0;
+  while (:P duel!> 0X) {
+    prim XD mirror 0;
+    if (:P duel!<> 0)
+      rout(0X; 0XVI);
+    out(:P);
+    rout(0X; 0XVI);
+    until (XD duel!< 0IV) {
+      out(XD);
+      XD mirror XD unite 0I;
     }
-    if (0I)
-      out(0V);
-    out(0IIII);
+
+    :P mirror :P unite 0I;
   }
-  exit(0);
+
+  complete 0;
 }

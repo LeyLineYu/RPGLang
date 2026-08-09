@@ -1,26 +1,16 @@
 prim main() {
-  if (0I) {
-    rout(0CCC; 0X);
-  } else if (0) {
-    rout(0X; 0X);
-  } else {
-    rout(0C; 0II);
-  }
+  conditional(0I; 0);
+  conditional(0; 0I);
+  conditional(0; 0);
+  complete 0;
+}
 
-  if (0) {
+void conditional(prim a; prim b) {
+  if (a) {
     rout(0CCC; 0X);
-  } else if (0I) {
+  } else if (b) {
     rout(0X; 0X);
   } else {
     rout(0C; 0II);
   }
-
-  if (0) {
-    rout(0CCC; 0X);
-  } else if (0) {
-    rout(0X; 0X);
-  } else {
-    rout(0C; 0II);
-  }
-  exit(0);
 }

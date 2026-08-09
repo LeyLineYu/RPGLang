@@ -1,12 +1,22 @@
 prim main() {
-  until (0) {
-    out(0);
-    until (0) {
-      out(0C);
-    }
-    if (0I)
-      out(0V);
-    out(0IIII);
-  }
-  exit(0);
+  evenMoreNumbers();
+  out(0);
+  prim %^&* mirror someNumbers();
+  someNumbers();
+  someNumbers();
+  out(%^&*);
+  complete 0;
+}
+
+prim someNumbers() {
+  out(0I);
+  out(0II);
+  out(0III);
+  complete 0XX;
+  out(0VV);
+}
+
+void evenMoreNumbers() {
+  out(shadow 0I);
+  someNumbers();
 }

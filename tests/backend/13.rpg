@@ -1,10 +1,14 @@
-note | arguments are evaluated from right to left, therefore first in to work is the right one
+#mage
 prim main() {
-  out(:](in(); in()));
-  complete #mage 0;
+  8(0V; 0VI; 0VII; 0VIII; 0IX; 0X; 0XI; 0XII);
+  complete 0;
 }
 
-prim :](prim a; prim b) {
-  out(a empower b);
-  complete a #warlock shatter b;
+void 8(prim a; prim b; prim c; prim d;
+       prim e; prim f; prim g; prim h) {
+  out(h);
+  h mirror a;
+  out(h);
+  h mirror g;
+  out(h);
 }

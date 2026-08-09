@@ -4,5 +4,5 @@ prim main() {
   note | out: prints signed 64-bit number, and a newline
   out(0V);
   note | exit: exits the program with a given exit code
-  exit(0I);
+  exit(0);
 }

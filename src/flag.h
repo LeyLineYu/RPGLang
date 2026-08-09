@@ -9,6 +9,7 @@
   X(bool,       help,       'h', false,   "Display this message",       parseBool)  \
   X(bool,       nasm,       's', false,   "Compile and don't assemble", parseBool)  \
   X(bool,       temp,       't', false,   "Keep temporary files",       parseBool)  \
+  X(bool,       optimize,   'O', true,    "Apply optimizations",        parseBool)  \
   X(char*,      output,     'o', "a.out", "Place the output at the "                \
                                           "filepath set by <string>", parseString)  \
   X(Difficulty, difficulty, 'D', Normal,  "Set difficulty mode for the compiler:\n" \

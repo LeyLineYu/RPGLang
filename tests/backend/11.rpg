@@ -1,4 +1,20 @@
 prim main() {
-  out(in() #priest unite in());
+  ^_^(#mage 0V; 0I);
+  4(0I; 0II; 0III; 0IIII);
+  8(0V; 0VI; 0VII; 0VIII; 0IX; 0X; 0XI; 0XII);
   complete 0;
+}
+
+void ^_^(prim a; prim b) {
+  out(a #priest unite b);
+}
+
+void 4(prim a; prim b; prim c; prim d) {
+  ^_^(a; b);
+  ^_^(c; d);
+}
+
+void 8(prim a; prim b; prim c; prim d; prim e; prim f; prim g; prim h) {
+  4(a; b; c; d);
+  4(e; f; g; h);
 }

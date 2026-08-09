@@ -1,47 +1,4 @@
-note | in RPGLang, function names have less restrictions than in other languages
-note | Function names: start with anything that isn't 0;(){} 
-note | and continue with anything that isn't ;(){}
-note | Also, function name can't be a keyword.
 prim main() {
-  _Mangle_();
-  ___(#mage 0V);
-  123(0);
-  *();
-  .,''();
-  complete 55() #warrior hit 3();
+  out(in() #priest unite in());
+  complete 0;
 }
-#mage
-void _Mangle_() {
-  out(0I);
-}
-
-void ___(prim a) {
-  out(0II);
-  *();
-}
-
-void 123(prim a) {
-  out(0III);
-}
-
-void *() {
-  +-+();
-  +-+();
-  out(0X);
-}
-
-void +-+() {
-  out(0I);
-  out(#priest shadow #mage 0I);
-  out(0I);
-}
-
-void .,''() {
-  out(0D);
-}
-
-prim 55()
-  complete #mage 0LV;
-
-prim 3()
-  complete #mage 0III;

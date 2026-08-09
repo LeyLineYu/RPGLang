@@ -42,9 +42,11 @@ int main(int argc, char* argv[]) {
   }
   trUnitInited = true;
 
-  if ((err = middleend(&trUnit))) {
-    logln(FATAL, "Frontend failed");
-    DEFER(err);
+  if (flagCtx.optimize) {
+    if ((err = middleend(&trUnit))) {
+      logln(FATAL, "Frontend failed");
+      DEFER(err);
+    }
   }
 
   if ((err = backend(flagCtx.output, &trUnit, flagCtx.nasm, flagCtx.temp))) {
