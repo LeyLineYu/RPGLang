@@ -6,10 +6,8 @@
 TreeNode* nodeAlloc_(NodeAllocOpt opt) {
   TreeNode* node = (TreeNode*)calloc(1, sizeof(TreeNode));
   Error* status = opt.status;
-  if (!node) {
-    free(node);
+  if (!node)
     RETURN_WITH_STATUS(FailMemoryAllocation, NULL);
-  }
   
   //так как NodeAllocOpt повторяет те же поля что и TreeNode, можем сделать так
   return memcpy(node, &opt, sizeof(TreeNode));
