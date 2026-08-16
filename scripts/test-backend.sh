@@ -1,4 +1,7 @@
 #!/bin/bash
+# A script to compile test programs and test them out
+# Warning: all the test programs are compiled in easy difficulty (-D easy)
+# which means the compiler does not care for the core mechanic of this language: class-specific-keywords
 
 # set -x
 COMPILER="./bin/rpgc"

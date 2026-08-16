@@ -2,6 +2,7 @@
 #include "io/io.h"
 #include "middleend/api/middleend.h"
 #include "utils/utils.h"
+#include "logger/logger.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[]) {

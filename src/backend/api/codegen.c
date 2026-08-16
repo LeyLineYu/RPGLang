@@ -1,5 +1,6 @@
 #include "backend/api/codegen.h"
 #include "ds/hashtable/entry.h"
+#include "logger/logger.h"
 #include <assert.h>
 #include <stdarg.h>
 
@@ -119,8 +120,9 @@ static void codegenRec(Context* ctx, TreeNode* ast,
     assert(e);
     Symbol* sym = (Symbol*)listGetValue(&ctx->symtab->values, e->value, NULL);
     assert(sym);
-    if (sym->argc)
+    if (sym->argc) {
       com("PRECALL SAVED REGS");
+    }
     for (size_t i = 0; i < ARG_REGS_SIZE && i < sym->argc; i++) {
       genn("\t\tpush %s\n",
            ARG_REGS[i]);
@@ -318,10 +320,11 @@ static void ctrl(Context* ctx, TreeNode* ast, uint64_t oldDepth) {
       call(ctx, ast, oldDepth);
       break;
     case CTRL_RETURN:
-      if (ast->left)
+      if (ast->left) {
         com("TYPED RETURN");
-      else 
+      } else {
         com("VOID RETURN");
+      }
       if (ast->left) {
         genn("\t\tpop rax\n");
         ctx->depth--;
@@ -483,8 +486,9 @@ static void call(Context* ctx, TreeNode* ast, uint64_t oldDepth) {
   Symbol* curFuncDeclSym = (Symbol*)listGetValue(&ctx->symtab->values, e->value, NULL);
   assert(curFuncDeclSym);
   
-  if (curFuncDeclSym->argc)
+  if (curFuncDeclSym->argc) {
     com("POP CALL SAVED REGS");
+  }
   for (size_t k = MIN(6, curFuncDeclSym->argc) - 1; k < ARG_REGS_SIZE; k--) {
     genn("\t\tpop %s\n",
         ARG_REGS[k]);
@@ -535,7 +539,7 @@ static void funcDecl(Context* ctx, TreeNode* ast) {
       sym->varc * REG_SIZE);
 }
 
-static void cmp(Context* ctx, TreeNode* ast, const char* cmpStr) {
+static void cmp(Context* ctx, _unused TreeNode* ast, const char* cmpStr) {
   PRELUDE();
   assert(cmpStr);
 #ifdef CONDITIONAL_MOVES
@@ -564,7 +568,7 @@ static void cmp(Context* ctx, TreeNode* ast, const char* cmpStr) {
   ctx->depth++;
 }
 
-static void not(Context* ctx, TreeNode* ast) {
+static void not(Context* ctx, _unused TreeNode* ast) {
   PRELUDE();
 #ifdef CONDITIONAL_MOVES
   gen("LOGICAL NOT",
@@ -591,7 +595,7 @@ static void not(Context* ctx, TreeNode* ast) {
   ctx->depth++;
 }
 
-static void and(Context* ctx, TreeNode* ast) {
+static void and(Context* ctx, _unused TreeNode* ast) {
   PRELUDE();
   uint64_t falseLabel     = ctx->labelCount++;
   uint64_t skipFalseLabel = ctx->labelCount++;
@@ -611,7 +615,7 @@ static void and(Context* ctx, TreeNode* ast) {
   ctx->depth++;
 }
 
-static void or(Context* ctx, TreeNode* ast) {
+static void or(Context* ctx, _unused TreeNode* ast) {
   PRELUDE();
   uint64_t trueLabel     = ctx->labelCount++;
   uint64_t skipTrueLabel = ctx->labelCount++;
@@ -637,7 +641,7 @@ static void or(Context* ctx, TreeNode* ast) {
 #undef com
 #undef PRELUDE
 
-static void gen_(FILE* sink, const char* commentary, 
+static void gen_(FILE* sink, _unused const char* commentary, 
                  const char* fmt, ...) {
   assert(sink);
   assert(commentary);

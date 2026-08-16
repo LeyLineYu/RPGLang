@@ -223,7 +223,7 @@ void parseArgs(int* argc, char*** argv, FlagContext* ctx) {
 /// parses optional true/false/1/0 arg after a bool flag
 /// by default returns true
 bool parseBool(int* argc, char*** argv, 
-               FlagContext* ctx, bool* failed) {
+               _unused FlagContext* ctx, _unused bool* failed) {
   PRELUDE();
   assert(failed);
 
@@ -247,7 +247,7 @@ bool parseBool(int* argc, char*** argv,
 
 /// parses required string
 char* parseString(int* argc, char*** argv, 
-                  FlagContext* ctx, bool* failed) {
+                  _unused FlagContext* ctx, _unused bool* failed) {
   PRELUDE();
   assert(failed);
 
@@ -258,7 +258,7 @@ char* parseString(int* argc, char*** argv,
 }
 
 Difficulty parseDifficulty(int* argc, char*** argv, 
-                           FlagContext* ctx, bool* failed) {
+                           _unused FlagContext* ctx, _unused bool* failed) {
   PRELUDE();
   assert(failed);
 

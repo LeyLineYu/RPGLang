@@ -1,4 +1,5 @@
 #include "frontend/api/parser.h"
+#include "logger/logger.h"
 
 typedef struct {
   Tokens* t;
@@ -77,13 +78,21 @@ TreeNode* parse(Tokens* t) {
 
 #define PEEK() ((Token*)dynArrGet(p->t, p->i))
 #define CHECK(T) (PEEK()->type == T)
-#define PRELUDE()                         \
-  assert(p);                              \
-  assert(p->t);                           \
-  assert(result);                         \
-  logln(DEBUG, "%s is at this token: %s", \
-               __PRETTY_FUNCTION__,       \
-               getTokenTypeStr(PEEK()->type));
+
+#ifdef PARSER_DEBUG_INFO
+  #define PRELUDE()                         \
+    assert(p);                              \
+    assert(p->t);                           \
+    assert(result);                         \
+    logln(DEBUG, "%s is at this token: %s", \
+                 __PRETTY_FUNCTION__,       \
+                 getTokenTypeStr(PEEK()->type));
+#else
+  #define PRELUDE()                         \
+    assert(p);                              \
+    assert(p->t);                           \
+    assert(result);
+#endif
 
 static bool getFunctionDeclaration(Parser* p, TreeNode** result) {
   PRELUDE();
@@ -605,7 +614,9 @@ static bool consumeToken(Parser* p, TokenType type) {
   assert(p && p->t);
   if (CHECK(type)) {
     p->i++;
+#ifdef PARSER_DEBUG_INFO
     logln(DEBUG, "consumed %s", getTokenTypeStr(type));
+#endif
     return true;
   }
   return false;

@@ -233,22 +233,20 @@ Error lexerPrintTokens(FILE* sink, Lexer* lexer) {
   for (size_t i = 0; i < lexer->tokens.count; i++) {
     Token* t = (Token*)dynArrGet(&lexer->tokens, i);
     const char* tStr = getTokenTypeStr(t->type);
-    fprintf(sink, "%-2s", t->isInvalidClass ? "!" : "");
-    switch (t->type) {
-      case TOK_NUM_LIT:
-        fprintf(sink, 
-                "%s(%ld)(%.*s)\n", 
-                tStr, t->value, 
-                (int)t->len, t->pos);
-        break;
-      case TOK_IDENTIFIER:
-        fprintf(sink, 
-                "%s(%.*s)\n", 
-                tStr, (int)t->len, t->pos);
-        break;
-      default:
-        fprintf(sink, "%s\n", tStr);
-    }
+
+    fprintf(sink, "%-2s%s", 
+            t->isInvalidClass ? "!" : "", tStr);
+    if (t->type == TOK_NUM_LIT)
+      fprintf(sink, 
+              "(%ld)(%.*s)", 
+              t->value, 
+              (int)t->len, t->pos);
+    else if (t->type == TOK_IDENTIFIER)
+      fprintf(sink, 
+              "(%.*s)", 
+              (int)t->len, t->pos);
+    
+    fputc('\n', sink);
   }
   return OK;
 }

@@ -3,6 +3,7 @@
 #include "io/io.h"
 #include "utils/utils.h"
 #include "backend/api/backend.h"
+#include "logger/logger.h"
 
 int main(int argc, char* argv[]) {
   FlagContext flagCtx = {0};

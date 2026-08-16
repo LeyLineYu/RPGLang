@@ -3,6 +3,7 @@
 #include <string.h>
 
 static const size_t REALLOC_MULT = 2;
+extern inline void* dynArrGet(DynamicArray* dynamicArray, size_t index);
 
 DynamicArray* dynArrAlloc(size_t initialCapacity, size_t itemSize, 
                           free_f freeFunc, Error* status) {

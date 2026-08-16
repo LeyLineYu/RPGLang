@@ -6,6 +6,7 @@
 #include "ds/hashtable/entry.h"
 #include "ds/hashtable/hashtable.h"
 #include "ds/tree/node.h"
+#include "logger/logger.h"
 
 const size_t SYMTAB_BUCKET_SIZE = 17;
 const size_t SYMTAB_LIST_CAPACITY = 4;

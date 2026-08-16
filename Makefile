@@ -3,7 +3,6 @@ COMPILER := gcc
 ARTIFACT_PATH := build
 BINARY_PATH   := bin
 LOG_PATH      := .log
-TEMP_PATH     := .temp
 
 SOURCE_PATH    := src
 CORE_PATH      := $(SOURCE_PATH)/core
@@ -13,13 +12,20 @@ BACKEND_PATH   := $(SOURCE_PATH)/backend
 
 INCLUDE_FLAGS := -I $(SOURCE_PATH)/ \
 								 -I $(CORE_PATH)/
-DEFINE_FLAGS  := -D _DEBUG \
-							   -D LOG_STATUSES \
-								 -D BACKEND_DEBUG_INFO \
-								 -D CONDITIONAL_MOVES
-								# -D SIMPLIFIED_NODES
-								# -D LOG_FORCE_TRACE
 LIBS          := -lm -lc
+# Common defines
+DEFINE_FLAGS  := -D CONDITIONAL_MOVES
+
+# Debug exclusive defines
+DEBUG_DEFINE_FLAGS := -D _DEBUG \
+                      -D LOG_STATUSES \
+								      -D BACKEND_DEBUG_INFO
+								    # -D SIMPLIFIED_NODES
+								    # -D LOG_FORCE_TRACE
+										# -D PARSER_DEBUG_INFO
+
+# Release exclusive defines
+RELEASE_DEFINE_FLAGS := -D NDEBUG
 
 MAIN_TARGET   := $(BINARY_PATH)/rpgc
 FRONTEND      := $(BINARY_PATH)/rpgc-frontend
@@ -59,8 +65,15 @@ SANITIZER_FLAGS := -fsanitize=address,alignment,bool,bounds,enum,$\
 				           null,object-size,return,returns-nonnull-attribute,$\
 				           shift,signed-integer-overflow,undefined,$\
 				           unreachable,vla-bound,vptr
+# Debug exclusive flags
+DEBUG_C_FLAGS   := -ggdb3 -O0 \
+                   -Wstack-protector -fstack-protector \
+									 -fno-omit-frame-pointer \
+									 $(SANITIZER_FLAGS)
+# Release exclusive flags
+RELEASE_C_FLAGS := -O3
 
-C_FLAGS := -ggdb3 -O1 -Wall -Wextra                                       \
+C_FLAGS := -Wall -Wextra                                                  \
 				   -Waggressive-loop-optimizations                                \
 				   -Wmissing-declarations -Wcast-align -Wcast-qual                \
 				   -Wchar-subscripts                                              \
@@ -72,33 +85,45 @@ C_FLAGS := -ggdb3 -O1 -Wall -Wextra                                       \
 				   -Wshadow -Wsign-conversion                                     \
 				   -Wstrict-overflow=2 -Wsuggest-attribute=noreturn               \
 				   -Wsuggest-final-methods -Wsuggest-final-types                  \
-				   -Wswitch-default -Wsync-nand                                   \
+				   -Wsync-nand                                                    \
 				   -Wundef -Wunreachable-code -Wunused -Wuseless-cast             \
 				   -Wvariadic-macros                                              \
 				   -Wno-missing-field-initializers -Wno-narrowing                 \
-				   -Wno-varargs -Wstack-protector                                 \
-				   -fcheck-new -fstack-protector                                  \
-				   -fstrict-overflow                                              \
-				   -fno-omit-frame-pointer -Wlarger-than=64000                    \
-				   -Wstack-usage=8192 -pie -fPIE -Werror=vla                      \
-					 $(SANITIZER_FLAGS)
- 
+				   -Wno-varargs -fstrict-overflow                                 \
+				   -Wstack-usage=8192 -pie -fPIE -Werror=vla
+
+.PHONY: debug debug_prehook release release_prehook
+
+debug: debug_prehook build
+
+debug_prehook:
+	$(eval DEFINE_FLAGS += $(DEBUG_DEFINE_FLAGS))
+	$(eval C_FLAGS      += $(DEBUG_C_FLAGS))
+	@echo "Debug mode"
+
+release: release_prehook build
+
+release_prehook:
+	$(eval DEFINE_FLAGS += $(RELEASE_DEFINE_FLAGS))
+	$(eval C_FLAGS      += $(RELEASE_C_FLAGS))
+	@echo "Release mode"
+
 build: ensure_directories_exist $(FRONTEND) $(MIDDLEEND) $(BACKEND) $(MAIN_TARGET) update_todo
 
 $(FRONTEND): $(OBJECTS_CORE) $(OBJECTS_FRONTEND)
-	@echo -e "•Linking Frontend together"
+	@echo -e "\t• Linking Frontend together"
 	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 $(MIDDLEEND): $(OBJECTS_CORE) $(OBJECTS_MIDDLEEND)
-	@echo -e "•Linking Middleend together"
+	@echo -e "\t• Linking Middleend together"
 	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 $(BACKEND): $(OBJECTS_CORE) $(OBJECTS_BACKEND)
-	@echo -e "•Linking Backend together"
+	@echo -e "\t• Linking Backend together"
 	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 $(MAIN_TARGET): $(filter-out $(OBJECTS_MODULAR_MAINS),$(OBJECTS))
-	@echo -e "•Linking RPGCompiler together"
+	@echo -e "\t• Linking RPGCompiler together"
 	@$(COMPILER) $(C_FLAGS) $^ -o $@ $(LIBS)
 
 -include $(DEPENDENCIES)
@@ -110,7 +135,7 @@ endef
 $(foreach $(SOURCE_PATH),$(SOURCES),$(eval $(strip $(call declare_recipe,$($(SOURCE_PATH))))))
 
 %.o:
-	@echo -e "•Compiling" $<
+	@echo -e "• Compiling" $<
 	@mkdir -p $(@D)
 	@$(COMPILER) -c -MMD $(DEFINE_FLAGS) $(INCLUDE_FLAGS) $(LIBS) $(C_FLAGS) $< -o $@
 
@@ -119,7 +144,7 @@ $(foreach $(SOURCE_PATH),$(SOURCES),$(eval $(strip $(call declare_recipe,$($(SOU
 .PHONY: ensure_directories_exist clean build clean_logs update_todo
 
 ensure_directories_exist:
-	mkdir -p $(BINARY_PATH) $(ARTIFACT_PATH) $(LOG_PATH) $(TEMP_PATH)
+	mkdir -p $(BINARY_PATH) $(ARTIFACT_PATH) $(LOG_PATH) 
 
 clean:
 	rm -f $(MAIN_TARGET) $(FRONTEND) $(MIDDLEEND) $(BACKEND)
@@ -131,7 +156,7 @@ clean_logs:
 	mkdir -p $(LOG_PATH)
 
 update_todo:
-	@echo -e "•Updating $(TODO_FILE)"
+	@echo -e "• Updating $(TODO_FILE)"
 	@rm -f $(TODO_FILE)
 	@touch $(TODO_FILE)
 	@grep -r -n "TODO" --exclude="Makefile" --exclude=".gitignore" --exclude="$(TODO_FILE)" --exclude-dir=.git | sed G >> $(TODO_FILE)

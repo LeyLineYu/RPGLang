@@ -1,5 +1,6 @@
 #include "ds/list/list.h"
 #include "ds/hashtable/entry.h"
+#include "logger/logger.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -235,10 +236,8 @@ void* listGetValue(List* lst, ListIndex index, Error* status) {
   Error err = listVerify(lst);
   if (err)
     RETURN_WITH_STATUS(err, NULL);
-  if (IS_INVALID_INDEX(index)) {
-    logln(DEBUG, "Capacity is %zu and index is %lu\n", lst->capacity, index);
+  if (IS_INVALID_INDEX(index))
     RETURN_WITH_STATUS(BadArgs, NULL);
-  }
 
   return listGet(lst, index);
 }

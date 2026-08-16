@@ -641,7 +641,7 @@ static void declareNode(FILE* dot, TreeNode* node, bool bondFailed) {
     case RAW_IDENT_TYPE: nodeColor = RAW_ID_CELL;  break;
     case CTRL_TYPE:      nodeColor = CTRL_CELL;    break;
     case VAR_TYPE_TYPE:  nodeColor = TYPE_CELL;    break;
-    default: break;
+    default: logln(ERROR, "Bad node type in declareNode(...)"); break;
   }
 
 #ifdef SIMPLIFIED_NODES
@@ -762,6 +762,7 @@ static void declareNode(FILE* dot, TreeNode* node, bool bondFailed) {
                 str ? str : "ERROR: no info for such VarType");
       }
       break;
+    case UNKNOWN_TYPE:
     default:
       break;
   }

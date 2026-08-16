@@ -17,7 +17,7 @@ static Logger LOGGER = {
   .level = DEBUG,
 };
 
-Error loggerInit(const char* filename, LogLevel level) {
+Error loggerInit(const char* filename, _unused LogLevel level) {
   if (LOGGER.sink)
     return DenyReinit; 
 
@@ -32,7 +32,12 @@ Error loggerInit(const char* filename, LogLevel level) {
   }
 
   LOGGER.sink  = sink;
+#ifndef _DEBUG
   LOGGER.level = level;
+#else
+  LOGGER.level = DEBUG;
+#endif
+
   logln(INFO, "Logger Initialized");
   return OK;
 }
