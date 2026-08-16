@@ -359,6 +359,8 @@ Error symtabPrint(FILE* f, HashTable* symtab) {
   if (!f)
     return BadArgs;
   Error err = OK;
+  if (!symtab)
+    return BadArgs;
   if ((err = hashTableVerify(symtab)))
     return err;
 

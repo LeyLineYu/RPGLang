@@ -21,7 +21,11 @@ DynamicArray* dynArrAlloc(size_t initialCapacity, size_t itemSize,
                           free_f freeFunc, Error* status);
 Error dynArrAppend(DynamicArray* dynamicArray, void* elem);
 Error dynArrDestroy(DynamicArray* dynamicArray, bool isAlloced);
-Error dynArrVerify(DynamicArray* dynamicArray);
+#ifdef _DEBUG
+  Error dynArrVerify(DynamicArray* dynamicArray);
+#else
+  #define dynArrVerify(dynamicArray) OK
+#endif
 
 inline void* dynArrGet(DynamicArray* dynamicArray, size_t index) {
   return ((char*)((dynamicArray)->items) + index * (dynamicArray)->itemSize);

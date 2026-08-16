@@ -99,9 +99,11 @@ List* listAlloc(size_t initialCapacity, size_t itemSize,
   (index > lst->capacity ||     \
    (lst->isDoubleLinked && index != lst->next[0] && lst->prev[index] == 0))
 
-#define VERIFY_LIST()          \
-  Error err = listVerify(lst); \
-  if (err)                     \
+#define VERIFY_LIST()              \
+  if (!lst)                        \
+    RETURN_WITH_STATUS(BadArgs, 0) \
+  Error err = listVerify(lst);     \
+  if (err)                         \
     RETURN_WITH_STATUS(err, 0);
 
 ListIndex listAddAfter(List* lst, ListIndex index, void* value, Error* status) {
@@ -148,6 +150,8 @@ ListIndex listAddBeforeHead(List* lst, void* value, Error* status) {
 }
 
 Error listDelete(List* lst, ListIndex index) {
+  if (!lst)
+    return BadArgs;
   Error err = listVerify(lst);
   if (err)
     return err;
@@ -259,6 +263,7 @@ Error listSetValue(List* lst, ListIndex index, void* value) {
   return OK;
 }
 
+#ifdef _DEBUG
 #define CHECK(condition, newStatus)   \
   {                                   \
     if (condition)                    \
@@ -341,8 +346,11 @@ Error listLoopCheck(List* lst) {
 }
 
 #undef RETURN_IF_LOOPED
+#endif //_DEBUG
 
 Error listLinearize(List* lst) {
+  if (!lst)
+    return BadArgs;
   Error err = listVerify(lst);
   if (err)
     return err;

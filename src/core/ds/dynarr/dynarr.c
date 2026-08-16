@@ -58,7 +58,7 @@ Error dynArrDestroy(DynamicArray* da, bool isAlloced) {
 }
 
 Error dynArrAppend(DynamicArray* da, void* elem) {
-  if (!elem)
+  if (!elem || !da)
     return BadArgs;
   Error err = dynArrVerify(da);
   if (err)
@@ -79,6 +79,7 @@ Error dynArrAppend(DynamicArray* da, void* elem) {
   return OK;
 }
 
+#ifdef _DEBUG
 Error dynArrVerify(DynamicArray* da) {
   if (!da)
     return BadArgs;
@@ -91,3 +92,4 @@ Error dynArrVerify(DynamicArray* da) {
     return ZeroSize;
   return OK;
 }
+#endif

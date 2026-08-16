@@ -41,10 +41,10 @@ static bool consumeToken(Parser* p, TokenType type);
 static bool consumeClassifiedToken(Parser* p, TokenType type, bool* isInvalid);
 
 // this function isn't finalized. 
-// represents Grammar in grammar.txt, 
-// which is currently FunctionDeclaration+, EOF
+// represents Grammar in GRAMMAR.md
 TreeNode* parse(Tokens* t) {
-  if (dynArrVerify(t))
+  if (!t ||
+      dynArrVerify(t))
     return NULL;
 
   Parser p = (Parser){ .t = t, .i = 0 };

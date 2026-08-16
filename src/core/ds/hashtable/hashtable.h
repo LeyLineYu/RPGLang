@@ -36,8 +36,13 @@ Error hashTablePutExt(HashTable* table, StringView key, void* value,
 bool hashTableGetExt(HashTable* table, StringView key, void* result, 
                      size_t* bucketIndex, ListIndex* listIndex, Error* status);
 Error hashTableDelete(HashTable* table, StringView key);
-Error hashTableVerify(HashTable* table);
 Error hashTableDestroy(HashTable* table, bool isAlloced);
+
+#ifdef _DEBUG
+  Error hashTableVerify(HashTable* table);
+#else
+  #define hashTableVerify(table) OK
+#endif
 
 uint64_t hashdjb2(StringView strView);
 uint64_t hashRotate(StringView strView);

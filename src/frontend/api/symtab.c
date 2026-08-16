@@ -74,6 +74,8 @@ bool symtabCheckCalls(TranslationUnit* trUnit, Error* status) {
   X("random", 0, false)
 
 static Error symtabAddStdlib(HashTable* symtab) {
+  if (!symtab)
+    return BadArgs;
   Error err = OK;
   if ((err = hashTableVerify(symtab)))
     return err;

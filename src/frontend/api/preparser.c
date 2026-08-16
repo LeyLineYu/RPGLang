@@ -39,6 +39,8 @@ static bool isInvalidClass(TokenType type, Class curClass);
 static const char* getClassStr(Class class);
 
 bool preparse(Tokens* ts, Difficulty dif, Error* status) {
+  if (!ts)
+    RETURN_WITH_STATUS(BadArgs, false);
   Error err = OK;
   if ((err = dynArrVerify(ts)))
     RETURN_WITH_STATUS(err, false);

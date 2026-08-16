@@ -10,6 +10,8 @@ Error hashTableInit(HashTable* table, size_t bucketCount,
                     size_t initialListCapacity, size_t itemSize, 
                     free_f freeFunc, printf_f printfFunc, 
                     cmp_f cmpFunc, hash_f hashFunc) {
+  if (!table)
+    return BadArgs;
   Error err = hashTableVerify(table);
   if (err != OK &&
       err != Uninitialized)
@@ -84,6 +86,8 @@ HashTable* hashTableAlloc(size_t bucketCount, size_t initialListCapacity,
 
 Error hashTablePutExt(HashTable* table, StringView key, void* value, 
                       size_t* bucketIndexPtr, ListIndex* listIndexPtr) {
+  if (!table)
+    return BadArgs;
   Error err = OK;
   if ((err = hashTableVerify(table)))
     return err;
@@ -127,6 +131,8 @@ Error hashTablePutExt(HashTable* table, StringView key, void* value,
 bool hashTableGetExt(HashTable* table, StringView key, void* result, 
                      size_t* bucketIndexPtr, ListIndex* listIndexPtr, 
                      Error* status) {
+  if (!table)
+    RETURN_WITH_STATUS(BadArgs, false);
   Error err = OK;
   if ((err = hashTableVerify(table)))
     RETURN_WITH_STATUS(err, false);
@@ -152,6 +158,8 @@ bool hashTableGetExt(HashTable* table, StringView key, void* result,
 }
 
 Error hashTableDelete(HashTable* table, StringView key) {
+  if (!table)
+    return BadArgs;
   Error err = OK;
   if ((err = hashTableVerify(table)))
     return err;
@@ -170,6 +178,7 @@ Error hashTableDelete(HashTable* table, StringView key) {
   return OK;
 }
 
+#ifdef _DEBUG
 Error hashTableVerify(HashTable* table) {
   if (!table)
     return BadArgs;
@@ -189,6 +198,7 @@ Error hashTableVerify(HashTable* table) {
     return err;
   return OK;
 }
+#endif
 
 Error hashTableDestroy(HashTable* table, bool isAlloced) {
   if (!table)

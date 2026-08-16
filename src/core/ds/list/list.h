@@ -63,12 +63,18 @@ void*      listGetValue(List* lst, ListIndex index, Error* status);
 Error      listSetValue(List* lst, ListIndex index, void* value);
 
 /// Note: O(n) time complexity
-Error listLoopCheck(List* lst);
-/// Note: O(n) time complexity
 Error listLinearize(List* lst);
 
 Error listDestroy(List* lst, bool isAlloced);
-Error listVerify(List* lst);
+
+#ifdef _DEBUG
+  Error listVerify(List* lst);
+  /// Note: O(n) time complexity
+  Error listLoopCheck(List* lst);
+#else
+  #define listVerify(lst) OK
+  #define listLoopCheck(lst) OK
+#endif
 
 /// for getting an address of a certain elem
 #define listGet(lst, index) ((char*)((lst)->data) + index * (lst)->itemSize)
