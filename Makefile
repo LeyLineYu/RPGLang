@@ -4,11 +4,12 @@ ARTIFACT_PATH := build
 BINARY_PATH   := bin
 LOG_PATH      := .log
 
-SOURCE_PATH    := src
-CORE_PATH      := $(SOURCE_PATH)/core
-FRONTEND_PATH  := $(SOURCE_PATH)/frontend
-MIDDLEEND_PATH := $(SOURCE_PATH)/middleend
-BACKEND_PATH   := $(SOURCE_PATH)/backend
+SOURCE_PATH     := src
+CORE_PATH       := $(SOURCE_PATH)/core
+CORE_DEBUG_PATH := $(CORE_PATH)/debug
+FRONTEND_PATH   := $(SOURCE_PATH)/frontend
+MIDDLEEND_PATH  := $(SOURCE_PATH)/middleend
+BACKEND_PATH    := $(SOURCE_PATH)/backend
 
 INCLUDE_FLAGS := -I $(SOURCE_PATH)/ \
 								 -I $(CORE_PATH)/
@@ -42,14 +43,16 @@ MODULAR_MAIN_FILES := $(FRONTEND_PATH)/main.c  \
                       $(MIDDLEEND_PATH)/main.c \
                       $(BACKEND_PATH)/main.c
 
-SOURCES_CORE       := $(shell find $(CORE_PATH)/      -type f -name '*.c')
-SOURCES_FRONTEND   := $(shell find $(FRONTEND_PATH)/  -type f -name '*.c')
-SOURCES_MIDDLEEND  := $(shell find $(MIDDLEEND_PATH)/ -type f -name '*.c')
-SOURCES_BACKEND    := $(shell find $(BACKEND_PATH)/   -type f -name '*.c')
+SOURCES_CORE       := $(shell find $(CORE_PATH)/       -type f -name '*.c')
+SOURCES_DEBUG_CORE := $(filter $(CORE_DEBUG_PATH)/%,$(SOURCES_CORE))
+SOURCES_FRONTEND   := $(shell find $(FRONTEND_PATH)/   -type f -name '*.c')
+SOURCES_MIDDLEEND  := $(shell find $(MIDDLEEND_PATH)/  -type f -name '*.c')
+SOURCES_BACKEND    := $(shell find $(BACKEND_PATH)/    -type f -name '*.c')
 SOURCES            := $(SOURCES_CORE) $(SOURCES_FRONTEND) \
 											$(SOURCES_MIDDLEEND) $(SOURCES_BACKEND) $(COMPILER_MAIN_FILE)
 
 OBJECTS_CORE          := $(call to_object,$(SOURCES_CORE))
+OBJECTS_DEBUG_CORE    := $(call to_object,$(SOURCES_DEBUG_CORE))
 OBJECTS_FRONTEND      := $(call to_object,$(SOURCES_FRONTEND))
 OBJECTS_MIDDLEEND     := $(call to_object,$(SOURCES_MIDDLEEND))
 OBJECTS_BACKEND       := $(call to_object,$(SOURCES_BACKEND))
@@ -92,7 +95,7 @@ C_FLAGS := -Wall -Wextra                                                  \
 				   -Wno-varargs -fstrict-overflow                                 \
 				   -Wstack-usage=8192 -pie -fPIE -Werror=vla
 
-.PHONY: debug debug_prehook release release_prehook
+.PHONY: debug debug_prehook release
 
 debug: debug_prehook build
 
@@ -101,12 +104,17 @@ debug_prehook:
 	$(eval C_FLAGS      += $(DEBUG_C_FLAGS))
 	@echo "Debug mode"
 
-release: release_prehook build
-
-release_prehook:
+release:
 	$(eval DEFINE_FLAGS += $(RELEASE_DEFINE_FLAGS))
 	$(eval C_FLAGS      += $(RELEASE_C_FLAGS))
+	$(eval OBJECTS_CORE := $(filter-out $(OBJECTS_DEBUG_CORE),$(OBJECTS_CORE)))
+	$(eval OBJECTS      := $(filter-out $(OBJECTS_DEBUG_CORE),$(OBJECTS)))
 	@echo "Release mode"
+	@# relaunch make with new variables set because 
+	@# you cannot redefine recipe's ingridents at this stage
+	@$(MAKE) build DEFINE_FLAGS="$(DEFINE_FLAGS)" \
+	  	           C_FLAGS="$(C_FLAGS)" \
+		 						 OBJECTS_CORE="$(OBJECTS_CORE)" OBJECTS="$(OBJECTS)"
 
 build: ensure_directories_exist $(FRONTEND) $(MIDDLEEND) $(BACKEND) $(MAIN_TARGET) update_todo
 

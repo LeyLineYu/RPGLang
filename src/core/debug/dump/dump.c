@@ -1,4 +1,4 @@
-#include "ds/dump.h"
+#include "debug/dump/dump.h"
 #include "logger/logger.h"
 #undef rootDump
 #undef nodeDump
@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "utils/utils.h"
-#include "ds/queue/queue.h"
+#include "debug/queue/queue.h"
 
 /// Global variable for graph dumps, 
 /// so that i dont have to pass the file pointer around, 

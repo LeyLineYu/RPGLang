@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "ds/queue/queue.h"
+#include "debug/queue/queue.h"
 
 Error enqueue(Queue** q, QueueUnit data) {
 	Queue* newHead = (Queue*)calloc(1, sizeof(Queue));
